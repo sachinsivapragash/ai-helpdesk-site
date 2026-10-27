@@ -131,10 +131,21 @@ async function askClaude(message, history, knowledgeBase) {
   return { ...parsed, model: response.model };
 }
 
-// Google Gemini REST API with a JSON response schema (free tier available).
+// Google Gemini REST API with a JSON response schema (free tier available). If the main model
+// is overloaded or rate-limited, the backup model is tried once.
 async function askGemini(message, history, knowledgeBase) {
+  try {
+    return await askGeminiModel(config.geminiModel, message, history, knowledgeBase);
+  } catch (err) {
+    if (![429, 503].includes(err.status) || !config.geminiBackupModel) throw err;
+    console.warn(`[assistant] ${config.geminiModel} unavailable (${err.status}), trying ${config.geminiBackupModel}`);
+    return askGeminiModel(config.geminiBackupModel, message, history, knowledgeBase);
+  }
+}
+
+async function askGeminiModel(model, message, history, knowledgeBase) {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.geminiModel)}:generateContent`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': config.geminiKey },
@@ -162,12 +173,14 @@ async function askGemini(message, history, knowledgeBase) {
     }
   );
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(data.error && data.error.message) || res.statusText}`);
+  if (!res.ok) {
+    throw Object.assign(new Error(`Gemini ${res.status}: ${(data.error && data.error.message) || res.statusText}`), { status: res.status });
+  }
   const text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
   if (!text) throw new Error(`Gemini returned no answer (${data.candidates?.[0]?.finishReason || 'unknown reason'})`);
   const parsed = JSON.parse(text);
   if (typeof parsed.answer !== 'string' || typeof parsed.confident !== 'boolean') throw new Error('Gemini answer had the wrong shape');
-  return { ...parsed, model: config.geminiModel };
+  return { ...parsed, model };
 }
 
 function answerWithRules(message, faqs, codes, events = []) {

@@ -24,7 +24,9 @@ module.exports = {
   // AI provider: Google Gemini (free tier) if GEMINI_API_KEY is set, otherwise Claude if
   // ANTHROPIC_API_KEY is set, otherwise rule-based answers only.
   geminiKey: env.GEMINI_API_KEY || '',
-  geminiModel: env.GEMINI_MODEL || 'gemini-flash-latest',
+  geminiModel: env.GEMINI_MODEL || 'gemini-flash-lite-latest',
+  // Tried when the main model is overloaded (503) or rate-limited (429).
+  geminiBackupModel: env.GEMINI_BACKUP_MODEL || 'gemini-flash-latest',
   anthropicKey: env.ANTHROPIC_API_KEY || '',
   claudeModel: env.CLAUDE_MODEL || 'claude-opus-5-5',
   aiTimeoutMs: Number(env.AI_TIMEOUT_MS) || 15000,
