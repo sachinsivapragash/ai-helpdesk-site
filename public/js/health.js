@@ -38,7 +38,8 @@
       <span class="muted"> · up ${Math.floor(data.uptimeSeconds / 60)} min · ${escapeHtml(data.node)}</span>`;
     checksEl.innerHTML = Object.entries(data.checks).map(([name, c]) => `
       <div class="card">
-        <h3>${dot(name === 'ai' ? (c.configured ? c.ok !== false : null) : c.ok)}${escapeHtml(labels[name] || name)}</h3>
+        <h3>${dot(name === 'ai' ? (c.configured ? c.ok !== false : null) : c.ok)}${escapeHtml(name === 'ai' && c.configured
+          ? `AI assistant (${c.provider === 'gemini' ? 'Google Gemini API' : 'Claude API'})` : labels[name] || name)}</h3>
         <p class="muted">${escapeHtml(describe(name, c) || '')}</p>
       </div>`).join('');
 

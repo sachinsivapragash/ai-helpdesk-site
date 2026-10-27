@@ -6,6 +6,8 @@ const config = require('./config');
 
 const partialsDir = path.join(__dirname, '..', 'views', 'partials');
 const cache = new Map();
+// Changes on every deploy/restart so browsers fetch fresh JS and CSS.
+const assetVersion = Date.now().toString(36);
 
 function read(file) {
   if (config.isProd && cache.has(file)) return cache.get(file);
@@ -28,6 +30,7 @@ function render(filePath, options, callback) {
       ownerEmail: config.owner.email,
       github: config.owner.github,
       year: new Date().getFullYear(),
+      assetVersion,
       ...options,
     };
     let html = read(filePath).replace(/\{\{>\s*([\w-]+)\s*\}\}/g, (_, name) => read(path.join(partialsDir, `${name}.html`)));
