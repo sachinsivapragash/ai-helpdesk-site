@@ -1,0 +1,33 @@
+# Render Blueprint: New > Blueprint > pick this repo. Secrets marked sync:false are
+# entered in the Render dashboard and never stored in Git.
+services:
+  - type: web
+    name: ai-helpdesk-site
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: CLAUDE_MODEL
+        value: claude-opus-5-5
+      - key: SITE_OWNER_NAME
+        sync: false
+      - key: SITE_OWNER_ROLE
+        value: Software Development Student
+      - key: SITE_OWNER_EMAIL
+        sync: false
+      - key: GITHUB_USERNAME
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ADMIN_TOKEN
+        generateValue: true

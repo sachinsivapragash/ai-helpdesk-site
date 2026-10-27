@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<title>Support – {{ownerName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section">
+  <h1>Support</h1>
+  <p class="lead">Open a ticket and I'll get back to you, or check the status of an existing one.</p>
+  <div class="grid cards-2 align-start">
+    <form id="ticket-form" class="card form" novalidate>
+      <h2>Open a ticket</h2>
+      <label>Name <input name="name" maxlength="100" autocomplete="name"></label>
+      <label>Email <input name="email" type="email" maxlength="200" autocomplete="email" placeholder="So I can reply"></label>
+      <label>Subject <span class="req">*</span><input name="subject" required maxlength="150"></label>
+      <label>Message <span class="req">*</span><textarea name="message" required minlength="10" maxlength="2000" rows="5"></textarea></label>
+      <button class="btn" type="submit">Send ticket</button>
+      <p class="form-result" aria-live="polite"></p>
+    </form>
+    <form id="lookup-form" class="card form" novalidate>
+      <h2>Check a ticket</h2>
+      <label>Ticket reference <input name="reference" required placeholder="TCK-1A2B3C" autocapitalize="characters"></label>
+      <button class="btn btn-outline" type="submit">Check status</button>
+      <div class="form-result" aria-live="polite"></div>
+    </form>
+  </div>
+</main>
+{{> footer}}
+<script src="/js/support.js"></script>
+</body>
+</html>

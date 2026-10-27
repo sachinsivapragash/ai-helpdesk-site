@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<meta name="robots" content="noindex">
+<title>Something went wrong (500) – {{ownerName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section error-page">
+  <p class="error-code">500</p>
+  <h1>Something went wrong on our side</h1>
+  <p class="lead">This is an internal server error — not something you did. It has been logged and I will look into it.</p>
+  <p class="muted">Reference: <code>{{requestId}}</code></p>
+  <div class="hero-actions">
+    <a class="btn" href="/">Go to the home page</a>
+    <button class="btn btn-outline" type="button" data-ask="I got error 500 on the website. What does it mean and what should I do?">Ask the assistant about this error</button>
+  </div>
+</main>
+{{> footer}}
+</body>
+</html>

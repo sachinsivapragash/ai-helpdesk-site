@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<title>Projects – {{ownerName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section">
+  <h1>Projects</h1>
+  <p class="lead">My latest public repositories, loaded from the GitHub API.</p>
+  <p id="projects-source" class="notice" hidden></p>
+  <div id="projects" class="grid cards-3" aria-live="polite"><p class="muted">Loading projects…</p></div>
+</main>
+{{> footer}}
+<script src="/js/projects.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<meta name="robots" content="noindex">
+<title>Admin – {{ownerName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section">
+  <h1>Ticket dashboard</h1>
+  <form id="admin-login" class="card form inline-form">
+    <label>Admin token <input name="token" type="password" autocomplete="current-password"></label>
+    <button class="btn" type="submit">Load tickets</button>
+  </form>
+  <p id="admin-stats" class="muted"></p>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Ref</th><th>Created</th><th>Source</th><th>Subject / message</th><th>Contact</th><th>Status</th><th></th></tr></thead>
+      <tbody id="ticket-rows"></tbody>
+    </table>
+  </div>
+</main>
+{{> footer}}
+<script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<meta name="robots" content="noindex">
+<title>Page not found (404) – {{ownerName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section error-page">
+  <p class="error-code">404</p>
+  <h1>We couldn't find that page</h1>
+  <p class="lead">The address may be mistyped, or the page may have moved. Error 404 means "Not Found".</p>
+  <div class="hero-actions">
+    <a class="btn" href="/">Go to the home page</a>
+    <button class="btn btn-outline" type="button" data-ask="My page shows error 404. What does it mean and what should I do?">Ask the assistant about this error</button>
+  </div>
+</main>
+{{> footer}}
+</body>
+</html>

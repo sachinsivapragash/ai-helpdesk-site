@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<title>Error codes – {{ownerName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section">
+  <h1>Error codes</h1>
+  <p class="lead">What each error means and what you can do about it. Click "Ask" to have the assistant explain a code.</p>
+  <div id="codes" class="grid cards-2" aria-live="polite"><p class="muted">Loading error codes…</p></div>
+
+  <section class="card demo">
+    <h2>Try them out</h2>
+    <p>These buttons make real requests to this site so you can see each error and the error banner in action.</p>
+    <div class="demo-buttons">
+      <button class="btn btn-small btn-outline" data-demo="400">400 – empty chat message</button>
+      <button class="btn btn-small btn-outline" data-demo="401">401 – admin API without token</button>
+      <button class="btn btn-small btn-outline" data-demo="403">403 – admin API with wrong token</button>
+      <a class="btn btn-small btn-outline" href="/this-page-does-not-exist">404 – missing page</a>
+      <a class="btn btn-small btn-outline" href="/demo/500">500 – server error page</a>
+      <button class="btn btn-small btn-outline" data-demo="SITE-460">SITE-460 – message too long</button>
+    </div>
+  </section>
+</main>
+{{> footer}}
+<script src="/js/error-codes.js"></script>
+</body>
+</html>

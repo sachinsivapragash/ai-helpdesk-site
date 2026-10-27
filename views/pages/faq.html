@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<title>FAQ – {{ownerName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section narrow">
+  <h1>Frequently asked questions</h1>
+  <p class="lead">These answers come straight from the site's SQL database — the same data the AI assistant uses.</p>
+  <label class="search">
+    <span class="sr-only">Search FAQs</span>
+    <input id="faq-search" type="search" placeholder="Search questions…" autocomplete="off">
+  </label>
+  <div id="faq-list" class="faq-list" aria-live="polite"><p class="muted">Loading FAQs…</p></div>
+  <div class="card cta">
+    <p><strong>Didn't find your answer?</strong> Ask the assistant — if it can't help, it will open a support ticket for you.</p>
+    <button class="btn" type="button" data-open-chat>Ask the assistant</button>
+  </div>
+</main>
+{{> footer}}
+<script src="/js/faq.js"></script>
+</body>
+</html>

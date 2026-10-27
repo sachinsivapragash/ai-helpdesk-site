@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<title>System health – {{ownerName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section">
+  <h1>System health</h1>
+  <p class="lead">Live status of every service this site depends on. Raw JSON: <a href="/api/health">/api/health</a></p>
+  <div id="health-overall" class="health-overall">Checking…</div>
+  <div id="health-checks" class="grid cards-2"></div>
+  <h2>Recent requests</h2>
+  <p class="muted">The last 20 requests handled by this server (request logging).</p>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Time</th><th>Request ID</th><th>Method</th><th>Path</th><th>Status</th><th>ms</th></tr></thead>
+      <tbody id="request-log"></tbody>
+    </table>
+  </div>
+</main>
+{{> footer}}
+<script src="/js/health.js"></script>
+</body>
+</html>
