@@ -28,7 +28,14 @@
     400: () => api('/api/chat', { method: 'POST', body: { message: '' } }),
     401: () => api('/api/admin/tickets'),
     403: () => api('/api/admin/tickets', { headers: { Authorization: 'Bearer wrong-token' } }),
-    'EVT-409': () => api('/api/events/resume-clinic/bookings', { method: 'POST', body: { name: 'Demo', email: 'demo@example.com', seats: 4 } }),
+    // Asks for more seats than the smallest event has left, so the booking is refused with EVT-409.
+    'EVT-409': async () => {
+      const { events } = await api('/api/events', { quiet: true });
+      const target = events.reduce((a, b) => (b.seats_left < a.seats_left ? b : a));
+      return api(`/api/events/${encodeURIComponent(target.slug)}/bookings`, {
+        method: 'POST', body: { name: 'Demo', email: 'demo@example.com', seats: Math.min(4, target.seats_left + 1) },
+      });
+    },
     'EVT-460': () => api('/api/chat', { method: 'POST', body: { message: 'x'.repeat(600) } }),
   };
   document.querySelectorAll('[data-demo]').forEach((b) => {

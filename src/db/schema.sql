@@ -56,3 +56,9 @@ CREATE TABLE IF NOT EXISTS bookings (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (event_id, email)
 );
+
+-- Rotating demo events: each slot shows one event from src/db/eventCatalog.js at a time.
+ALTER TABLE events ADD COLUMN IF NOT EXISTS slot TEXT;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS variant INTEGER NOT NULL DEFAULT 0;
+UPDATE events SET slot = slug WHERE slot IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS events_slot_key ON events (slot);

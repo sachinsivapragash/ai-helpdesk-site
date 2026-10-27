@@ -3,6 +3,7 @@
 // seat counts are kept across restarts.
 const config = require('../config');
 const { rollForwardPastEvents } = require('./evergreen');
+const { slots: eventSlots, variantFor } = require('./eventCatalog');
 
 const { name: site, campus } = config.site;
 const { name: owner, email } = config.owner;
@@ -132,21 +133,6 @@ const errorCodes = [
   },
 ];
 
-// days: how many days after the first start the event takes place.
-const events = [
-  { slug: 'hack-the-campus', title: 'Hack the Campus 24h Hackathon', category: 'Hackathon', days: 9, hour: 9, venue: 'Main Auditorium', price: 0, capacity: 120,
-    description: 'Build a working app in 24 hours with a team of up to four. Mentors, food and prizes for the top three teams.' },
-  { slug: 'ai-for-beginners', title: 'AI for Beginners Workshop', category: 'Workshop', days: 4, hour: 14, venue: 'Lab 3, CS Block', price: 0, capacity: 40,
-    description: 'A hands-on introduction to using AI APIs from JavaScript. Bring a laptop; no prior AI experience needed.' },
-  { slug: 'cultural-night', title: 'Rhythm Cultural Night', category: 'Cultural', days: 15, hour: 18, venue: 'Open Air Theatre', price: 100, capacity: 400,
-    description: 'Music, dance and drama performances by student clubs, followed by a DJ night. Outdoor event.' },
-  { slug: 'startup-talk', title: 'From Idea to Startup: Founder Talk', category: 'Talk', days: 6, hour: 16, venue: 'Seminar Hall 1', price: 0, capacity: 150,
-    description: 'Alumni founders share how they turned college projects into companies, with a Q&A session.' },
-  { slug: 'inter-dept-cricket', title: 'Inter-Department Cricket Final', category: 'Sports', days: 11, hour: 15, venue: 'College Ground', price: 0, capacity: 300,
-    description: 'Watch the final of the inter-department T10 cricket league. Outdoor event; seating in the stands.' },
-  { slug: 'resume-clinic', title: 'Resume & LinkedIn Clinic', category: 'Workshop', days: 2, hour: 11, venue: 'Placement Cell', price: 0, capacity: 2,
-    description: 'One-to-one review of your resume and LinkedIn profile by the placement team. Very limited seats.' },
-];
 
 async function seed(query) {
   for (const [i, f] of faqs.entries()) {
@@ -174,16 +160,25 @@ async function seed(query) {
   }
   await query('DELETE FROM error_codes WHERE NOT (code = ANY($1))', [errorCodes.map((e) => e.code)]);
 
-  for (const ev of events) {
+  // One row per event slot. New slots start with their first event; existing slots keep their
+  // date, bookings and current event, and get any text changes from the catalogue.
+  for (const slot of eventSlots) {
+    const first = slot.variants[0];
     await query(
-      `INSERT INTO events (slug, title, category, description, venue, starts_at, price, capacity)
-       VALUES ($1, $2, $3, $4, $5,
-               (date_trunc('day', NOW() AT TIME ZONE $10) + make_interval(days => $6, hours => $7)) AT TIME ZONE $10,
-               $8, $9)
-       ON CONFLICT (slug) DO UPDATE
-         SET title = EXCLUDED.title, category = EXCLUDED.category, description = EXCLUDED.description,
-             venue = EXCLUDED.venue, price = EXCLUDED.price, capacity = EXCLUDED.capacity`,
-      [ev.slug, ev.title, ev.category, ev.description, ev.venue, ev.days, ev.hour, ev.price, ev.capacity, config.site.timezone]
+      `INSERT INTO events (slot, variant, slug, title, category, description, venue, starts_at, price, capacity)
+       VALUES ($1, 0, $2, $3, $4, $5, $6,
+               (date_trunc('day', NOW() AT TIME ZONE $7) + make_interval(days => $8, hours => $9)) AT TIME ZONE $7,
+               $10, $11)
+       ON CONFLICT (slot) DO NOTHING`,
+      [slot.slot, first.slug, first.title, slot.category, first.description, first.venue, config.site.timezone,
+        slot.days, first.hour, first.price, first.capacity]
+    );
+    const [row] = await query('SELECT variant FROM events WHERE slot = $1', [slot.slot]);
+    const v = variantFor(slot.slot, row.variant);
+    await query(
+      `UPDATE events SET slug = $2, title = $3, category = $4, description = $5, venue = $6, price = $7, capacity = $8
+        WHERE slot = $1`,
+      [slot.slot, v.slug, v.title, v.category, v.description, v.venue, v.price, v.capacity]
     );
   }
 
