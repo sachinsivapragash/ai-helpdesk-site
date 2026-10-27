@@ -11,7 +11,10 @@ let driver = null;
 async function connect() {
   if (config.databaseUrl) {
     const { Pool } = require('pg');
-    client = new Pool({ connectionString: config.databaseUrl, max: 5, connectionTimeoutMillis: 5000 });
+    client = new Pool({ connectionString: config.databaseUrl, max: 5, connectionTimeoutMillis: 5000, idleTimeoutMillis: 60000 });
+    // Neon closes idle connections when it scales to zero. Without this handler the pool's
+    // 'error' event would crash the server; the pool simply opens a new connection next time.
+    client.on('error', (err) => console.warn('[sql] idle connection closed:', err.message));
     driver = 'postgres';
   } else {
     const { PGlite } = require('@electric-sql/pglite');

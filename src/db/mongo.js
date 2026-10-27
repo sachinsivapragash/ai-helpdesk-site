@@ -40,9 +40,13 @@ async function connect() {
   return connecting;
 }
 
+const MAX_IN_MEMORY = 1000;
+
 function insertInMemory(collection, record) {
   const id = new ObjectId().toString();
   memory[collection].push({ _id: id, ...record });
+  // During a very long MongoDB outage keep only the newest records so memory can't grow forever.
+  if (memory[collection].length > MAX_IN_MEMORY) memory[collection].shift();
   return id;
 }
 
