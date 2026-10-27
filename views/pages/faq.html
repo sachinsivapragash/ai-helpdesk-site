@@ -6,9 +6,18 @@
 </head>
 <body>
 {{> header}}
-<main id="main" class="container section narrow">
-  <h1>Frequently asked questions</h1>
-  <p class="lead">These answers come straight from the site's SQL database — the same data the AI assistant uses.</p>
+<main id="main">
+  <section class="page-head">
+    <div class="container page-head-inner">
+      <span class="page-icon" aria-hidden="true">❓</span>
+      <div>
+        <p class="eyebrow">Help centre</p>
+        <h1>Frequently asked questions</h1>
+        <p class="lead">These answers come straight from the site's SQL database — the same data the AI assistant uses.</p>
+      </div>
+    </div>
+  </section>
+  <div class="container section narrow page-body">
   <label class="search">
     <span class="sr-only">Search FAQs</span>
     <input id="faq-search" type="search" placeholder="Search questions…" autocomplete="off">
@@ -17,6 +26,7 @@
   <div class="card cta">
     <p><strong>Didn't find your answer?</strong> Ask the assistant — if it can't help, it will open a support ticket for you.</p>
     <button class="btn" type="button" data-open-chat>Ask the assistant</button>
+  </div>
   </div>
 </main>
 {{> footer}}

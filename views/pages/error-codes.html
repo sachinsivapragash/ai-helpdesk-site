@@ -6,9 +6,18 @@
 </head>
 <body>
 {{> header}}
-<main id="main" class="container section">
-  <h1>Error codes</h1>
-  <p class="lead">What each error means and what you can do about it. Click "Ask" to have the assistant explain a code.</p>
+<main id="main">
+  <section class="page-head">
+    <div class="container page-head-inner">
+      <span class="page-icon" aria-hidden="true">⚠️</span>
+      <div>
+        <p class="eyebrow">Troubleshooting</p>
+        <h1>Error codes</h1>
+        <p class="lead">What each error means and what you can do about it. Click "Ask" to have the assistant explain a code.</p>
+      </div>
+    </div>
+  </section>
+  <div class="container section page-body">
   <div id="codes" class="grid cards-2" aria-live="polite"><p class="muted">Loading error codes…</p></div>
 
   <section class="card demo">
@@ -24,6 +33,7 @@
       <button class="btn btn-small btn-outline" data-demo="EVT-460">EVT-460 – message too long</button>
     </div>
   </section>
+  </div>
 </main>
 {{> footer}}
 <script src="/js/error-codes.js?v={{assetVersion}}"></script>

@@ -7,7 +7,7 @@ module.exports = {
   isProd: env.NODE_ENV === 'production',
   site: {
     name: env.SITE_NAME || 'EventEase',
-    campus: env.CAMPUS_NAME || 'our campus',
+    campus: env.CAMPUS_NAME || 'colleges in Coimbatore',
     city: env.CAMPUS_CITY || 'Coimbatore',
     lat: Number(env.CAMPUS_LAT) || 11.0168,
     lon: Number(env.CAMPUS_LON) || 76.9558,

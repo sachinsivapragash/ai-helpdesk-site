@@ -13,11 +13,23 @@
     return new Date(iso).toLocaleDateString('en-CA', { timeZone: TZ }); // YYYY-MM-DD
   }
 
+  function weatherIcon(summary) {
+    const s = summary.toLowerCase();
+    if (s.includes('thunder')) return '⛈️';
+    if (s.includes('rain') || s.includes('shower')) return '🌧️';
+    if (s.includes('drizzle')) return '🌦️';
+    if (s.includes('fog')) return '🌫️';
+    if (s.includes('overcast')) return '☁️';
+    if (s.includes('partly') || s.includes('mainly')) return '⛅';
+    if (s.includes('clear')) return '☀️';
+    return '🌤️';
+  }
+
   function weatherFor(event, forecast) {
     const day = forecast && forecast.days.find((d) => d.date === dayKey(event.starts_at));
     if (!day) return '';
     const rain = day.rainChance != null ? ` · ${day.rainChance}% rain` : '';
-    return `<p class="event-weather">Forecast: ${escapeHtml(day.summary)}, ${day.maxTempC}°C${rain}</p>`;
+    return `<p class="event-weather">${weatherIcon(day.summary)} ${escapeHtml(day.summary)}, ${day.maxTempC}°C${rain}</p>`;
   }
 
   function card(e, forecast, { bookable = true } = {}) {
@@ -30,7 +42,8 @@
           <span class="price">${e.price > 0 ? `₹${e.price}` : 'Free'}</span>
         </div>
         <h3>${escapeHtml(e.title)}</h3>
-        <p class="event-when">${escapeHtml(formatDate(e.starts_at))} · ${escapeHtml(e.venue)}</p>
+        <p class="event-when">📅 ${escapeHtml(formatDate(e.starts_at))}</p>
+        <p class="event-venue">📍 ${escapeHtml(e.venue)}</p>
         <p>${escapeHtml(e.description)}</p>
         ${weatherFor(e, forecast)}
         <div class="seats"><div class="seats-bar"><span style="width:${pct}%"></span></div>
@@ -56,6 +69,7 @@
   window.Events = {
     formatDate,
     card,
+    weatherIcon,
     load: () => api('/api/events'),
     loadForecast,
   };

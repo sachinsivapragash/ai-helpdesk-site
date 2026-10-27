@@ -6,9 +6,18 @@
 </head>
 <body>
 {{> header}}
-<main id="main" class="container section">
-  <h1>System health</h1>
-  <p class="lead">Live status of every service this site depends on. Raw JSON: <a href="/api/health">/api/health</a></p>
+<main id="main">
+  <section class="page-head">
+    <div class="container page-head-inner">
+      <span class="page-icon" aria-hidden="true">📈</span>
+      <div>
+        <p class="eyebrow">Monitoring</p>
+        <h1>System health</h1>
+        <p class="lead">Live status of every service this site depends on. Raw JSON: <a href="/api/health">/api/health</a></p>
+      </div>
+    </div>
+  </section>
+  <div class="container section page-body">
   <div id="health-overall" class="health-overall">Checking…</div>
   <div id="health-checks" class="grid cards-2"></div>
   <h2>Recent requests</h2>
@@ -18,6 +27,7 @@
       <thead><tr><th>Time</th><th>Request ID</th><th>Method</th><th>Path</th><th>Status</th><th>ms</th></tr></thead>
       <tbody id="request-log"></tbody>
     </table>
+  </div>
   </div>
 </main>
 {{> footer}}
