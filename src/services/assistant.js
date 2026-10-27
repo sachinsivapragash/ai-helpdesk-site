@@ -1,6 +1,7 @@
 // AI assistant: answers only from the FAQ and error-code tables, explains error codes,
-// and opens a support ticket when it cannot answer. Uses Claude when ANTHROPIC_API_KEY is
-// set; falls back to keyword matching if the key is missing or the API call fails/times out.
+// and opens a support ticket when it cannot answer. Uses Google Gemini (GEMINI_API_KEY) or
+// Claude (ANTHROPIC_API_KEY); falls back to keyword matching if no key is set or the AI call
+// fails or times out.
 const Anthropic = require('@anthropic-ai/sdk');
 const config = require('../config');
 const sql = require('../db/sql');
@@ -12,11 +13,13 @@ const MAX_MESSAGE_LENGTH = 500;
 const STOPWORDS = new Set(('a an and are as at be by can do does for from how i if in is it me my of on or ' +
   'the this to was what when where which who why will with you your about there their have has').split(' '));
 
-const client = config.anthropicKey
+const provider = config.geminiKey ? 'gemini' : config.anthropicKey ? 'claude' : null;
+const providerModel = provider === 'gemini' ? config.geminiModel : config.claudeModel;
+const client = provider === 'claude'
   ? new Anthropic({ apiKey: config.anthropicKey, timeout: config.aiTimeoutMs, maxRetries: 1 })
   : null;
 
-let lastAiStatus = { ok: null, detail: client ? 'not called yet' : 'ANTHROPIC_API_KEY not set - fallback mode' };
+let lastAiStatus = { ok: null, detail: provider ? 'not called yet' : 'no AI key set (GEMINI_API_KEY or ANTHROPIC_API_KEY) - fallback mode' };
 
 const RESPONSE_SCHEMA = {
   type: 'object',
@@ -128,6 +131,45 @@ async function askClaude(message, history, knowledgeBase) {
   return { ...parsed, model: response.model };
 }
 
+// Google Gemini REST API with a JSON response schema (free tier available).
+async function askGemini(message, history, knowledgeBase) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.geminiModel)}:generateContent`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': config.geminiKey },
+      signal: AbortSignal.timeout(config.aiTimeoutMs),
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt(knowledgeBase) }] },
+        contents: [...history, { role: 'user', content: message }].map((m) => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        })),
+        generationConfig: {
+          temperature: 0.2,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              answer: { type: 'STRING' },
+              source: { type: 'STRING', enum: RESPONSE_SCHEMA.properties.source.enum },
+              confident: { type: 'BOOLEAN' },
+            },
+            required: ['answer', 'source', 'confident'],
+          },
+        },
+      }),
+    }
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(data.error && data.error.message) || res.statusText}`);
+  const text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
+  if (!text) throw new Error(`Gemini returned no answer (${data.candidates?.[0]?.finishReason || 'unknown reason'})`);
+  const parsed = JSON.parse(text);
+  if (typeof parsed.answer !== 'string' || typeof parsed.confident !== 'boolean') throw new Error('Gemini answer had the wrong shape');
+  return { ...parsed, model: config.geminiModel };
+}
+
 function answerWithRules(message, faqs, codes, events = []) {
   const matchedCodes = detectErrorCodes(message, codes);
   if (matchedCodes.length) {
@@ -181,14 +223,15 @@ async function chat({ message, sessionId, page, history, email }) {
 
   let result;
   let engine = 'rules';
-  if (client) {
+  if (provider) {
     try {
-      result = await askClaude(message, cleanHistory(history), buildKnowledgeBase(faqs, codes, events));
+      const ask = provider === 'gemini' ? askGemini : askClaude;
+      result = await ask(message, cleanHistory(history), buildKnowledgeBase(faqs, codes, events));
       engine = result.model || config.claudeModel;
       lastAiStatus = { ok: true, detail: `answered in ${Date.now() - started} ms`, at: new Date() };
     } catch (err) {
       lastAiStatus = { ok: false, detail: `fallback used: ${err.message}`, at: new Date() };
-      console.warn(`[assistant] Claude call failed, using rules: ${err.message}`);
+      console.warn(`[assistant] ${provider} call failed, using rules: ${err.message}`);
     }
   }
   if (!result) result = answerWithRules(message, faqs, codes, events);
@@ -222,6 +265,6 @@ async function chat({ message, sessionId, page, history, email }) {
 
 module.exports = {
   chat, ChatError, MAX_MESSAGE_LENGTH,
-  status: () => ({ configured: Boolean(client), model: config.claudeModel, ...lastAiStatus }),
+  status: () => ({ configured: Boolean(provider), provider: provider || 'none', model: provider ? providerModel : null, ...lastAiStatus }),
   _test: { detectErrorCodes, rankFaqs, answerWithRules },
 };

@@ -7,7 +7,7 @@
   const labels = {
     sql: 'SQL database (events, bookings, FAQs, tickets)',
     mongo: 'MongoDB (chat logs, feedback)',
-    ai: 'AI assistant (Claude API)',
+    ai: 'AI assistant',
     weather: 'Weather API (Open-Meteo, third-party)',
   };
 
@@ -18,7 +18,7 @@
   function describe(name, c) {
     if (name === 'sql') return c.ok ? `${c.driver}, ${c.latencyMs} ms` : c.detail;
     if (name === 'mongo') return c.ok ? `connected, ${c.latencyMs} ms` : c.detail;
-    if (name === 'ai') return `${c.configured ? `model ${c.model}` : 'not configured'} — ${c.detail}`;
+    if (name === 'ai') return `${c.configured ? `${c.provider}, model ${c.model}` : 'not configured'} — ${c.detail}`;
     return c.detail;
   }
 

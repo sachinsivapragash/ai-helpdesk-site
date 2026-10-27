@@ -22,7 +22,8 @@ app.use(helmet({
 }));
 app.use(requestLogger);
 app.use(express.json({ limit: '20kb' }));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: config.isProd ? '1h' : 0 }));
+// maxAge 0: browsers revalidate static files, so a redeploy shows up immediately.
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0 }));
 
 // API: everything except /health needs the SQL database; answer 503 until it is up.
 app.use('/api', (req, res, next) => {

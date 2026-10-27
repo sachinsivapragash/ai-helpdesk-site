@@ -29,6 +29,8 @@ services:
         sync: false
       - key: MONGODB_URI
         sync: false
+      - key: GEMINI_API_KEY
+        sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: ADMIN_TOKEN

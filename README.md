@@ -20,7 +20,7 @@ Campus events are usually announced on posters and WhatsApp groups. Students mis
 | 8+ error codes | `error_codes` table: 400, 401, 403, 404, 429, 500, 503, plus two site-specific codes: **EVT-409** (event sold out or already booked) and **EVT-460** (chat message too long). The "Try them out" buttons on `/error-codes` trigger each one for real |
 | Custom 404 and 500 pages with "Ask the assistant" | `views/pages/404.html` and `500.html`. Visit any wrong address, or `/demo/500` |
 | Error banner | Any failed request shows a banner with an **Ask the assistant about this error** button |
-| Assistant answers from site data, explains codes, creates a ticket when unsure | `src/services/assistant.js`. Claude receives only the FAQ, error-code and upcoming-event rows and must return `confident: false` when the answer isn't there. The server then creates a ticket in SQL and returns its reference. If the AI is unavailable, keyword matching takes over |
+| Assistant answers from site data, explains codes, creates a ticket when unsure | `src/services/assistant.js`. The AI (Google Gemini on the free tier, or Claude) receives only the FAQ, error-code and upcoming-event rows and must return `confident: false` when the answer isn't there. The server then creates a ticket in SQL and returns its reference. If the AI is unavailable, keyword matching takes over |
 | Tickets in SQL; chat logs and feedback in MongoDB | `tickets` table with full CRUD on the Organisers page. `chat_logs` and `feedback` (thumbs up/down) collections in MongoDB |
 | Keys in environment variables | All secrets are read from `process.env` (`src/config.js`). `.env` is git-ignored and only `.env.example` is committed |
 | Request logging and health check | Every request is logged with an ID, status and response time. `/api/health` returns JSON and `/health` shows it as a page, with the last 20 requests |
@@ -40,7 +40,7 @@ Express server (server.js)
    ├── /api routes (src/routes/api.js)
    │     ├── PostgreSQL ── events, bookings, faqs, error_codes, tickets
    │     ├── MongoDB ───── chat_logs, feedback (held in memory and retried if MongoDB is down)
-   │     ├── Claude API ── assistant answers (timeout 15 s, then rule-based fallback)
+   │     ├── Gemini / Claude ── assistant answers (timeout 15 s, then rule-based fallback)
    │     └── Open-Meteo ── weather forecast (timeout 3 s, then fallback)
    └── HTML pages (views/) + custom 404 / 500
 ```
@@ -76,7 +76,7 @@ npm run dev              # http://localhost:3000
 npm test                 # 16 automated end-to-end tests
 ```
 
-Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pglite.dev)) in `./data`. Without `MONGODB_URI`, chat logs are kept in memory. Without `ANTHROPIC_API_KEY`, the assistant runs in rule-based fallback mode. Tables are created and seeded on start. Demo events are scheduled relative to the first start, and events that have passed move forward three weeks, so the site always has upcoming events.
+Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pglite.dev)) in `./data`. Without `MONGODB_URI`, chat logs are kept in memory. Without `GEMINI_API_KEY` (free from [Google AI Studio](https://aistudio.google.com/apikey)) or `ANTHROPIC_API_KEY`, the assistant runs in rule-based fallback mode. Tables are created and seeded on start. Demo events are scheduled relative to the first start, and events that have passed move forward three weeks, so the site always has upcoming events.
 
 ## Deployment
 
