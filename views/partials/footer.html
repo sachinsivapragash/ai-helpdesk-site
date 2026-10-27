@@ -1,7 +1,32 @@
 <footer class="site-footer">
-  <div class="container footer-inner">
-    <p>&copy; {{year}} {{siteName}} &middot; Built by {{ownerName}} &middot; <a href="mailto:{{ownerEmail}}">{{ownerEmail}}</a> &middot; <a href="https://github.com/{{github}}/ai-helpdesk-site" rel="noopener">Source code</a></p>
-    <p class="footer-links"><a href="/health">System health</a> &middot; <a href="/error-codes">Error codes</a> &middot; <a href="/admin">Organisers</a></p>
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand footer-logo" href="/"><span class="brand-mark" aria-hidden="true">EE</span> {{siteName}}</a>
+      <p>Campus events in {{city}}, booked in seconds. Questions? Ask the assistant any time.</p>
+    </div>
+    <nav class="footer-col" aria-label="Explore">
+      <h2>Explore</h2>
+      <a href="/events">Events</a>
+      <a href="/about">About</a>
+      <a href="/faq">FAQ</a>
+    </nav>
+    <nav class="footer-col" aria-label="Help">
+      <h2>Help</h2>
+      <a href="/support">Support</a>
+      <a href="/error-codes">Error codes</a>
+      <a href="/health">System health</a>
+    </nav>
+    <nav class="footer-col" aria-label="Project">
+      <h2>Project</h2>
+      <a href="/admin">Organisers</a>
+      <a href="https://github.com/{{github}}/ai-helpdesk-site" rel="noopener">Source code</a>
+      <a href="mailto:{{ownerEmail}}">Contact</a>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <div class="container footer-bottom-inner">
+      <span>&copy; {{year}} {{siteName}} &middot; Built by {{ownerName}}</span>
+    </div>
   </div>
 </footer>
 <script src="/js/common.js?v={{assetVersion}}"></script>
