@@ -14,7 +14,12 @@ function assignId(req, res, next) {
   next();
 }
 
+// Not shown on the health page: the favicon is requested by browsers and by the keep-awake job
+// every 10 minutes. These requests are still written to the main log.
+const HIDDEN_PATHS = new Set(['/favicon.svg', '/favicon.ico']);
+
 function remember(req, res, next) {
+  if (HIDDEN_PATHS.has(req.path)) return next();
   const started = process.hrtime.bigint();
   res.on('finish', () => {
     recent.unshift({
