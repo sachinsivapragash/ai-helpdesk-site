@@ -70,6 +70,8 @@ npm test                 # 12 automated end-to-end tests
 
 Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pglite.dev)) stored in `./data`. Without `MONGODB_URI`, chat logs are kept in memory. Without `ANTHROPIC_API_KEY`, the assistant runs in rule-based fallback mode. The health page shows which mode each service is in.
 
+If MongoDB is unreachable at start-up or goes down later, the chat keeps working: new chat logs and feedback are held in memory, the app retries the connection every 30 seconds, and the held records are written to MongoDB once it is back. This was tested against a real MongoDB 7 server by stopping and restarting it.
+
 ## Deploy (free tiers)
 
 1. **PostgreSQL:** create a free database on [Neon](https://neon.tech) and copy the connection string (it includes `?sslmode=require`).
