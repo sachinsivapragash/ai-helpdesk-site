@@ -7,6 +7,19 @@
 
 EventEase is a responsive website where students browse campus events (hackathons, workshops, talks, cultural nights and sports) and book seats online. Every page has a chat widget whose AI assistant answers questions from the site's own data, explains error codes, and opens a support ticket when it cannot answer.
 
+## Quick links for evaluation
+
+| Requirement | Where to see it |
+|---|---|
+| 3+ pages, chat widget on every page | [Home](https://ai-helpdesk-site.onrender.com) · [Events](https://ai-helpdesk-site.onrender.com/events) · [About](https://ai-helpdesk-site.onrender.com/about) · [Support](https://ai-helpdesk-site.onrender.com/support) (chat button at the bottom right) |
+| 10+ FAQs from SQL | [FAQ page](https://ai-helpdesk-site.onrender.com/faq) · [API](https://ai-helpdesk-site.onrender.com/api/faqs) |
+| 8+ error codes, error banner | [Error codes page](https://ai-helpdesk-site.onrender.com/error-codes) (use the "Try them out" buttons) · [API](https://ai-helpdesk-site.onrender.com/api/error-codes) |
+| Custom 404 / 500 pages | [Wrong address](https://ai-helpdesk-site.onrender.com/this-page-does-not-exist) · [Test server error](https://ai-helpdesk-site.onrender.com/demo/500) |
+| AI assistant + ticket when unsure | Chat button on any page. Ask something off-topic to get a `TCK-` ticket, then check it on [Support](https://ai-helpdesk-site.onrender.com/support) |
+| Health check + request logging | [Health page](https://ai-helpdesk-site.onrender.com/health) (live status of every service and the last 20 requests) · [JSON](https://ai-helpdesk-site.onrender.com/api/health) |
+| Third-party API with time limit + fallback | Weather on the [home page](https://ai-helpdesk-site.onrender.com) and on event cards · [API](https://ai-helpdesk-site.onrender.com/api/weather) · code in `src/services/weather.js` |
+| Secrets in environment variables | `src/config.js` reads every key from `process.env`; only `.env.example` is committed |
+
 ## The idea
 
 Campus events are usually announced on posters and WhatsApp groups. Students miss them, popular events overflow, and organisers can't tell how many people will turn up. EventEase puts every event in one place with live seat counts, instant booking references, and an assistant that handles common questions.
