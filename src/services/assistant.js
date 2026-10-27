@@ -129,7 +129,10 @@ function cleanHistory(history) {
 }
 
 async function chat({ message, sessionId, page, history, email }) {
-  if (typeof message !== 'string' || !message.trim()) {
+  if (message !== undefined && message !== null && typeof message !== 'string') {
+    throw new ChatError(400, '400', 'Message must be text.');
+  }
+  if (!message || !message.trim()) {
     throw new ChatError(400, '400', 'Message is required.');
   }
   message = message.trim();
