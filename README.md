@@ -87,7 +87,7 @@ Admin routes need `Authorization: Bearer <ADMIN_TOKEN>`. A missing token returns
 npm install
 cp .env.example .env     # optional: set your name, email, API keys
 npm run dev              # http://localhost:3000
-npm test                 # 22 automated tests
+npm test                 # 23 automated tests
 ```
 
 Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pglite.dev)) in `./data`. Without `MONGODB_URI`, chat logs are kept in memory. Without `GEMINI_API_KEY` (free from [Google AI Studio](https://aistudio.google.com/apikey)) or `ANTHROPIC_API_KEY`, the assistant runs in rule-based fallback mode. Tables are created and seeded on start. Demo events are scheduled relative to the first start, and events that have passed move forward three weeks, so the site always has upcoming events.
