@@ -26,7 +26,8 @@ function remember(req, res, next) {
       id: req.id,
       time: new Date().toISOString(),
       method: req.method,
-      path: req.originalUrl.split('?')[0],
+      // Booking and ticket references are masked so the public health page can't be used to look them up.
+      path: req.originalUrl.split('?')[0].replace(/\b(BK|TCK)-[0-9A-Za-z]+/gi, (m) => `${m.split('-')[0].toUpperCase()}-******`),
       status: res.statusCode,
       ms: Number((process.hrtime.bigint() - started) / 1000000n),
     });
