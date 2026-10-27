@@ -2,6 +2,7 @@
 // every start so edits here reach the database; events are only inserted once so booked
 // seat counts are kept across restarts.
 const config = require('../config');
+const { rollForwardPastEvents } = require('./evergreen');
 
 const { name: site, campus } = config.site;
 const { name: owner, email } = config.owner;
@@ -186,22 +187,8 @@ async function seed(query) {
     );
   }
 
-  // Keep the demo evergreen: events more than a day in the past move forward in 3-week steps
-  // and start again with no bookings.
-  const stale = await query(
-    "SELECT id FROM events WHERE starts_at < NOW() - INTERVAL '1 day'"
-  );
-  if (stale.length) {
-    const ids = stale.map((r) => r.id);
-    await query('DELETE FROM bookings WHERE event_id = ANY($1)', [ids]);
-    await query(
-      `UPDATE events
-          SET starts_at = starts_at + make_interval(days => 21 * CEIL(EXTRACT(EPOCH FROM NOW() - starts_at) / (21 * 86400))::int),
-              booked = 0
-        WHERE id = ANY($1)`,
-      [ids]
-    );
-  }
+  // Keep the demo evergreen (see rollForwardPastEvents in services/events.js).
+  await rollForwardPastEvents(query);
 }
 
 module.exports = { seed };

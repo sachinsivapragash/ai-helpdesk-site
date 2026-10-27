@@ -161,3 +161,15 @@ test('health check reports dependencies', async () => {
   assert.ok(body.checks.sql.ok);
   assert.ok('mongo' in body.checks && 'ai' in body.checks && 'weather' in body.checks);
 });
+
+test('past events roll forward automatically while the site is running', async () => {
+  const sql = require('../src/db/sql');
+  const { rollForwardPastEvents } = require('../src/db/evergreen');
+  await sql.query("UPDATE events SET starts_at = NOW() - INTERVAL '2 days', booked = 3 WHERE slug = 'startup-talk'");
+  assert.equal(await rollForwardPastEvents(sql.query), 1);
+  const [e] = await sql.query("SELECT starts_at, booked FROM events WHERE slug = 'startup-talk'");
+  assert.ok(new Date(e.starts_at) > new Date(), 'event is in the future again');
+  assert.equal(e.booked, 0);
+  const days = (new Date(e.starts_at) - Date.now()) / 86400000;
+  assert.ok(days > 18 && days < 20, `moved about 3 weeks ahead (${days.toFixed(1)} days)`);
+});

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const sql = require('../db/sql');
+const { rollForwardPastEvents } = require('../db/evergreen');
 
 const EVENT_FIELDS = `id, slug, title, category, description, venue, starts_at, price, capacity, booked,
   capacity - booked AS seats_left`;
@@ -12,7 +13,14 @@ class BookingError extends Error {
   }
 }
 
+const ROLL_EVERY_MS = 60 * 60 * 1000;
+let lastRoll = 0;
+
 async function list() {
+  if (Date.now() - lastRoll > ROLL_EVERY_MS) {
+    lastRoll = Date.now();
+    await rollForwardPastEvents(sql.query).catch((err) => console.error('[events] roll forward failed:', err.message));
+  }
   return sql.query(`SELECT ${EVENT_FIELDS} FROM events WHERE starts_at > NOW() - INTERVAL '6 hours' ORDER BY starts_at`);
 }
 
