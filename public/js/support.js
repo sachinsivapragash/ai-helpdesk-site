@@ -32,6 +32,16 @@
     if (!ref) return;
     out.textContent = 'Checking…';
     try {
+      // Booking references (BK-...) are looked up as bookings, everything else as support tickets.
+      if (/^BK-/i.test(ref)) {
+        const b = await api(`/api/bookings/${encodeURIComponent(ref)}`, { quiet: true });
+        const d = new Date(b.starts_at);
+        const tz = { timeZone: 'Asia/Kolkata' };
+        const when = `${d.toLocaleDateString('en-IN', { ...tz, weekday: 'short' })}, ${d.toLocaleDateString('en-IN', { ...tz, day: 'numeric', month: 'short', year: 'numeric' })}, ${d.toLocaleTimeString('en-IN', { ...tz, hour: 'numeric', minute: '2-digit' })}`;
+        out.innerHTML = `<p><strong>Booking ${escapeHtml(b.reference)}</strong> — ${escapeHtml(b.event)}</p>
+          <p>${escapeHtml(when)} · ${escapeHtml(b.venue)}<br>${b.seats} seat(s) · Status: <strong>${escapeHtml(b.status)}</strong></p>`;
+        return;
+      }
       const t = await api(`/api/tickets/${encodeURIComponent(ref)}`, { quiet: true });
       out.innerHTML = `<p><strong>${escapeHtml(t.reference)}</strong> — ${escapeHtml(t.subject)}</p>
         <p>Status: <strong>${escapeHtml(t.status.replace('_', ' '))}</strong><br>
