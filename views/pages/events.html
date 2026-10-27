@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+<title>Events – {{siteName}}</title>
+</head>
+<body>
+{{> header}}
+<main id="main" class="container section">
+  <h1>Upcoming events</h1>
+  <p class="lead">Book up to 4 seats per event with your college email. Weather forecasts appear for event days within the next two weeks.</p>
+  <div class="filters" role="group" aria-label="Filter events">
+    <button type="button" class="chip active" data-filter="all">All</button>
+    <button type="button" class="chip" data-filter="Hackathon">Hackathons</button>
+    <button type="button" class="chip" data-filter="Workshop">Workshops</button>
+    <button type="button" class="chip" data-filter="Talk">Talks</button>
+    <button type="button" class="chip" data-filter="Cultural">Cultural</button>
+    <button type="button" class="chip" data-filter="Sports">Sports</button>
+  </div>
+  <p id="weather-note" class="notice" hidden></p>
+  <div id="events" class="grid cards-2" aria-live="polite"><p class="muted">Loading events…</p></div>
+
+  <form id="booking-lookup" class="card form inline-form lookup" novalidate>
+    <label>Check a booking <input name="reference" placeholder="BK-1A2B3C" autocapitalize="characters" required></label>
+    <button class="btn btn-outline" type="submit">Check</button>
+    <div class="form-result" aria-live="polite"></div>
+  </form>
+</main>
+{{> footer}}
+<script src="/js/events.js"></script>
+<script src="/js/events-page.js"></script>
+</body>
+</html>

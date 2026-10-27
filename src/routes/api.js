@@ -4,7 +4,8 @@ const sql = require('../db/sql');
 const mongo = require('../db/mongo');
 const assistant = require('../services/assistant');
 const tickets = require('../services/tickets');
-const github = require('../services/github');
+const events = require('../services/events');
+const weather = require('../services/weather');
 const adminAuth = require('../middleware/adminAuth');
 const { apiError } = require('../middleware/errors');
 const { recentRequests } = require('../middleware/requestLogger');
@@ -15,7 +16,7 @@ const rateLimitHandler = (req, res) =>
   apiError(res, 429, '429', 'Too many requests. Please wait a minute and try again.');
 
 const chatLimiter = rateLimit({ windowMs: 60 * 1000, limit: 15, standardHeaders: 'draft-7', legacyHeaders: false, handler: rateLimitHandler });
-const writeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: 'draft-7', legacyHeaders: false, handler: rateLimitHandler });
+const writeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-7', legacyHeaders: false, handler: rateLimitHandler });
 
 const isEmail = (v) => typeof v === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -34,7 +35,7 @@ router.get('/health', async (req, res) => {
     checks.mongo = { ok: false, detail: err.message };
   }
   checks.ai = assistant.status();
-  checks.github = github.status();
+  checks.weather = weather.status();
 
   const status = !checks.sql.ok ? 'down' : checks.mongo.ok && checks.ai.configured ? 'ok' : 'degraded';
   res.status(status === 'down' ? 503 : 200).json({
@@ -140,9 +141,55 @@ router.get('/admin/stats', adminAuth, async (req, res) => {
   res.json({ chatMessages: chats, feedback });
 });
 
+// ---------- Events & bookings ----------
+router.get('/events', async (req, res) => {
+  const rows = await events.list();
+  res.json({ count: rows.length, events: rows });
+});
+
+router.get('/events/:slug', async (req, res) => {
+  const event = await events.get(req.params.slug);
+  if (!event) return apiError(res, 404, '404', 'No event with that name.');
+  res.json(event);
+});
+
+router.post('/events/:slug/bookings', writeLimiter, async (req, res) => {
+  const { name, email, seats } = req.body || {};
+  const errors = [];
+  if (!str(name, 100)) errors.push('name is required');
+  if (!isEmail(email)) errors.push('a valid email is required');
+  const count = Number(seats);
+  if (!Number.isInteger(count) || count < 1 || count > 4) errors.push('seats must be a whole number from 1 to 4');
+  if (errors.length) return apiError(res, 400, '400', 'Please fix the booking form.', { details: errors });
+  try {
+    const booking = await events.book(req.params.slug, { name: str(name, 100), email, seats: count });
+    res.status(201).location(`/api/bookings/${booking.reference}`).json(booking);
+  } catch (err) {
+    if (err instanceof events.BookingError) return apiError(res, err.status, err.code, err.message);
+    throw err;
+  }
+});
+
+router.get('/bookings/:reference', async (req, res) => {
+  const booking = await events.getBooking(req.params.reference.toUpperCase());
+  if (!booking) return apiError(res, 404, '404', 'No booking with that reference.');
+  res.json(booking);
+});
+
+router.get('/admin/bookings', adminAuth, async (req, res) => {
+  const rows = await events.listBookings();
+  res.json({ count: rows.length, bookings: rows });
+});
+
+router.patch('/admin/bookings/:reference/cancel', adminAuth, async (req, res) => {
+  const booking = await events.cancelBooking(req.params.reference.toUpperCase());
+  if (!booking) return apiError(res, 404, '404', 'No confirmed booking with that reference.');
+  res.json(booking);
+});
+
 // ---------- Third-party ----------
-router.get('/projects', async (req, res) => {
-  res.json(await github.getProjects());
+router.get('/weather', async (req, res) => {
+  res.json(await weather.getForecast());
 });
 
 module.exports = router;

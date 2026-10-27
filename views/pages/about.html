@@ -2,34 +2,34 @@
 <html lang="en">
 <head>
 {{> head}}
-<title>About – {{ownerName}}</title>
+<title>About – {{siteName}}</title>
 </head>
 <body>
 {{> header}}
 <main id="main" class="container section">
-  <h1>About me</h1>
+  <h1>About {{siteName}}</h1>
   <div class="grid about-grid">
     <div class="prose">
-      <p>I'm <strong>{{ownerName}}</strong>, a {{ownerRole}} who enjoys turning ideas into working software. I like the whole journey: designing a database, writing a clean API, and polishing the page a visitor actually sees.</p>
-      <p>This website is my final software development project. It is a full-stack Node.js application with a PostgreSQL database for FAQs, error codes and support tickets, MongoDB for chat logs and feedback, and an AI assistant that only answers from the site's own data — and opens a ticket instead of guessing.</p>
-      <h2>How I work</h2>
+      <p><strong>The problem:</strong> campus events are announced on posters, WhatsApp groups and notice boards. Students miss them, popular events overflow, and organisers have no idea how many people will turn up.</p>
+      <p><strong>The idea:</strong> {{siteName}} puts every event in one place. Students book seats online in seconds, organisers see bookings live, and seat limits stop events from overflowing.</p>
+      <p><strong>The assistant:</strong> an AI help desk answers questions about events, booking, payments and error messages using only the site's own data. If it doesn't know the answer, it opens a support ticket instead of guessing.</p>
+      <h2>How it's built</h2>
       <ul>
-        <li><strong>Small, tested steps.</strong> I commit often and check each feature end to end.</li>
-        <li><strong>Secure by default.</strong> Secrets live in environment variables, never in Git.</li>
-        <li><strong>Plan for failure.</strong> Every external call has a time limit and a fallback.</li>
-        <li><strong>Mobile first.</strong> Layouts are designed for a phone and scaled up.</li>
+        <li><strong>Backend:</strong> Node.js and Express with a REST API and proper HTTP status codes.</li>
+        <li><strong>PostgreSQL:</strong> events, bookings, FAQs, error codes and support tickets.</li>
+        <li><strong>MongoDB:</strong> chat logs and thumbs up/down feedback.</li>
+        <li><strong>Claude API:</strong> the assistant, with keyword-matching fallback.</li>
+        <li><strong>Open-Meteo API:</strong> event-day weather, with a 3-second time limit and fallback.</li>
+        <li><strong>Monitoring:</strong> request logs and a live <a href="/health">health page</a>.</li>
       </ul>
     </div>
     <aside class="card">
-      <h2>Skills</h2>
-      <ul class="tags">
-        <li>JavaScript</li><li>Node.js</li><li>Express</li><li>REST APIs</li><li>PostgreSQL</li>
-        <li>MongoDB</li><li>HTML &amp; CSS</li><li>Git &amp; GitHub</li><li>Claude API</li><li>Deployment</li>
-      </ul>
-      <h2>Currently learning</h2>
-      <p>Automated testing, Docker and cloud monitoring.</p>
-      <h2>Contact</h2>
-      <p><a href="mailto:{{ownerEmail}}">{{ownerEmail}}</a><br><a href="https://github.com/{{github}}" rel="noopener">github.com/{{github}}</a></p>
+      <h2>Project</h2>
+      <p>Final assessment project for Software Development.</p>
+      <h2>Built by</h2>
+      <p>{{ownerName}}<br><a href="mailto:{{ownerEmail}}">{{ownerEmail}}</a></p>
+      <h2>Source code</h2>
+      <p><a href="https://github.com/{{github}}/ai-helpdesk-site" rel="noopener">github.com/{{github}}/ai-helpdesk-site</a></p>
     </aside>
   </div>
 </main>

@@ -1,26 +1,32 @@
-# Personal Website with an AI Help Assistant
+# EventEase – Campus Event Booking with an AI Help Assistant
 
-**Task title:** Personal Portfolio Website with an AI FAQ & Error-Code Assistant
+**Task title:** EventEase – Campus Event Booking Website with an AI FAQ & Error-Code Assistant
 
 **Live site:** https://ai-helpdesk-site.onrender.com
 **Health check:** https://ai-helpdesk-site.onrender.com/health
 
-A responsive personal website built with Node.js and Express. Every page has a chat widget whose AI assistant answers questions from the site's FAQ data, explains error codes, and opens a support ticket when it cannot answer.
+EventEase is a responsive website where students browse campus events (hackathons, workshops, talks, cultural nights and sports) and book seats online. Every page has a chat widget whose AI assistant answers questions from the site's own data, explains error codes, and opens a support ticket when it cannot answer.
+
+## The idea
+
+Campus events are usually announced on posters and WhatsApp groups. Students miss them, popular events overflow, and organisers can't tell how many people will turn up. EventEase puts every event in one place with live seat counts, instant booking references, and an assistant that handles common questions.
 
 ## Features
 
 | Requirement | How it is met |
 |---|---|
-| Responsive site, 3+ pages, chat widget on every page | Home, About, Projects, FAQ, Error codes, Support, Health, Admin. Mobile-first CSS. The widget (`public/js/chat.js`) is in the shared footer partial, so it loads on every page, including 404 and 500 |
-| 10+ FAQs in SQL, shown on the FAQ page | 12 FAQs in the PostgreSQL `faqs` table, served by `GET /api/faqs` and rendered on `/faq` with search |
-| 8+ error codes | `error_codes` table: 400, 401, 403, 404, 429, 500, 503 and the site-specific **SITE-460** (chat message too long). All are listed on `/error-codes`, and the "Try them out" buttons trigger them for real |
+| Responsive site, 3+ pages, chat widget on every page | Home, Events, About, FAQ, Error codes, Support, Health and Organisers pages. Mobile-first CSS, checked at phone width. The widget (`public/js/chat.js`) is in the shared footer, so it loads on every page, including 404 and 500 |
+| 10+ FAQs in SQL, shown on the FAQ page | 12 event-booking FAQs in the PostgreSQL `faqs` table, served by `GET /api/faqs` and rendered on `/faq` with search |
+| 8+ error codes | `error_codes` table: 400, 401, 403, 404, 429, 500, 503, plus two site-specific codes: **EVT-409** (event sold out or already booked) and **EVT-460** (chat message too long). The "Try them out" buttons on `/error-codes` trigger each one for real |
 | Custom 404 and 500 pages with "Ask the assistant" | `views/pages/404.html` and `500.html`. Visit any wrong address, or `/demo/500` |
-| Error banner | Any failed API call shows a banner with an **Ask the assistant about this error** button |
-| Assistant answers from FAQ data, explains codes, creates a ticket when unsure | `src/services/assistant.js`: Claude gets only the FAQ and error-code rows as its knowledge base and must return `confident: false` when the answer isn't there. The server then creates a ticket in SQL and returns its reference. If the AI is unavailable it falls back to keyword matching |
-| Tickets in SQL; chat logs and feedback in MongoDB | `tickets` table with full CRUD. `chat_logs` and `feedback` (thumbs up/down) collections in MongoDB |
+| Error banner | Any failed request shows a banner with an **Ask the assistant about this error** button |
+| Assistant answers from site data, explains codes, creates a ticket when unsure | `src/services/assistant.js`. Claude receives only the FAQ, error-code and upcoming-event rows and must return `confident: false` when the answer isn't there. The server then creates a ticket in SQL and returns its reference. If the AI is unavailable, keyword matching takes over |
+| Tickets in SQL; chat logs and feedback in MongoDB | `tickets` table with full CRUD on the Organisers page. `chat_logs` and `feedback` (thumbs up/down) collections in MongoDB |
 | Keys in environment variables | All secrets are read from `process.env` (`src/config.js`). `.env` is git-ignored and only `.env.example` is committed |
-| Request logging and health check | Every request is logged with an ID, status and response time (`src/middleware/requestLogger.js`). `/api/health` returns JSON and `/health` shows it as a page, along with the last 20 requests |
-| Extra third-party API with a time limit and fallback | The GitHub REST API supplies the Projects page. The call has a 3-second `AbortSignal.timeout`, a 10-minute cache, and falls back to a saved project list on timeout or error |
+| Request logging and health check | Every request is logged with an ID, status and response time. `/api/health` returns JSON and `/health` shows it as a page, with the last 20 requests |
+| Extra third-party API with a time limit and fallback | The Open-Meteo weather API supplies the forecast for each event day and the home-page weather strip. Each call has a 3-second `AbortSignal.timeout` and a 30-minute cache, and falls back to "forecast unavailable" without breaking the page |
+
+Bookings are stored in SQL as well. Seats are reserved with one atomic `UPDATE ... WHERE booked + seats <= capacity`, so two people can't take the last seat. Organisers can cancel a booking, which releases its seats.
 
 ## Architecture
 
@@ -32,10 +38,10 @@ Express server (server.js)
    ├── helmet security headers, JSON body limit, rate limits (429)
    ├── request logger ──► stdout + in-memory recent log
    ├── /api routes (src/routes/api.js)
-   │     ├── PostgreSQL ── faqs, error_codes, tickets
-   │     ├── MongoDB ───── chat_logs, feedback
+   │     ├── PostgreSQL ── events, bookings, faqs, error_codes, tickets
+   │     ├── MongoDB ───── chat_logs, feedback (held in memory and retried if MongoDB is down)
    │     ├── Claude API ── assistant answers (timeout 15 s, then rule-based fallback)
-   │     └── GitHub API ── projects (timeout 3 s, then saved list)
+   │     └── Open-Meteo ── weather forecast (timeout 3 s, then fallback)
    └── HTML pages (views/) + custom 404 / 500
 ```
 
@@ -43,54 +49,48 @@ Express server (server.js)
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/health` | Status of SQL, MongoDB, AI and GitHub (`200` ok or degraded, `503` if the database is down) |
+| GET | `/api/health` | Status of SQL, MongoDB, AI and weather (`200` ok or degraded, `503` if the database is down) |
+| GET | `/api/events`, `/api/events/:slug` | Upcoming events with seats left |
+| POST | `/api/events/:slug/bookings` | `{ name, email, seats }` → `201` with a `BK-` reference. Returns `409 EVT-409` if sold out or already booked |
+| GET | `/api/bookings/:reference` | Booking status |
 | GET | `/api/faqs` | All FAQs |
 | GET | `/api/error-codes`, `/api/error-codes/:code` | Error-code reference |
 | POST | `/api/chat` | `{ message, sessionId, page, history }` → `{ answer, source, engine, ticket, messageId }` |
 | POST | `/api/feedback` | `{ messageId, rating: "up" \| "down" }` → `201` |
-| POST | `/api/tickets` | Create a ticket → `201` + `Location` header |
-| GET | `/api/tickets/:reference` | Public ticket status |
-| GET | `/api/admin/tickets` | List tickets (admin) |
-| PATCH | `/api/admin/tickets/:reference` | Update status (admin) |
-| DELETE | `/api/admin/tickets/:reference` | Delete (admin) → `204` |
-| GET | `/api/projects` | GitHub repos, or the fallback list |
+| POST | `/api/tickets` | Create a support ticket → `201` |
+| GET | `/api/tickets/:reference` | Ticket status |
+| GET | `/api/weather` | Campus forecast, or the fallback |
+| GET | `/api/admin/tickets`, `/api/admin/bookings`, `/api/admin/stats` | Organiser views (admin) |
+| PATCH | `/api/admin/tickets/:reference` | Update ticket status (admin) |
+| DELETE | `/api/admin/tickets/:reference` | Delete a ticket (admin) → `204` |
+| PATCH | `/api/admin/bookings/:reference/cancel` | Cancel a booking and release its seats (admin) |
 
-Admin routes need `Authorization: Bearer <ADMIN_TOKEN>`. A missing token returns `401` and a wrong one returns `403`. The `/admin` page is a small dashboard for these routes.
-
-Errors always look like `{ "error": { "status": 404, "code": "404", "message": "..." } }`.
+Admin routes need `Authorization: Bearer <ADMIN_TOKEN>`. A missing token returns `401` and a wrong one returns `403`. Errors always look like `{ "error": { "status": 409, "code": "EVT-409", "message": "..." } }`.
 
 ## Run locally
 
 ```bash
 npm install
-cp .env.example .env     # then edit your name, email, GitHub username
+cp .env.example .env     # optional: set your name, email, API keys
 npm run dev              # http://localhost:3000
-npm test                 # 12 automated end-to-end tests
+npm test                 # 16 automated end-to-end tests
 ```
 
-Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pglite.dev)) stored in `./data`. Without `MONGODB_URI`, chat logs are kept in memory. Without `ANTHROPIC_API_KEY`, the assistant runs in rule-based fallback mode. The health page shows which mode each service is in.
+Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pglite.dev)) in `./data`. Without `MONGODB_URI`, chat logs are kept in memory. Without `ANTHROPIC_API_KEY`, the assistant runs in rule-based fallback mode. Tables are created and seeded on start. Demo events are scheduled relative to the first start, and events that have passed move forward three weeks, so the site always has upcoming events.
 
-If MongoDB is unreachable at start-up or goes down later, the chat keeps working: new chat logs and feedback are held in memory, the app retries the connection every 30 seconds, and the held records are written to MongoDB once it is back. This was tested against a real MongoDB 7 server by stopping and restarting it.
+## Deployment
 
-## Deploy (free tiers)
-
-1. **PostgreSQL:** create a free database on [Neon](https://neon.tech) and copy the connection string (it includes `?sslmode=require`).
-2. **MongoDB:** create a free M0 cluster on [MongoDB Atlas](https://www.mongodb.com/atlas). Add a database user, allow access from `0.0.0.0/0`, and copy the `mongodb+srv://` URI.
-3. **Claude API key:** create one at [platform.claude.com](https://platform.claude.com).
-4. **Render:** push this repo to GitHub, then in [Render](https://render.com) choose **New → Blueprint** and select the repo (it reads `render.yaml`). Fill in `SITE_OWNER_NAME`, `SITE_OWNER_EMAIL`, `GITHUB_USERNAME`, `DATABASE_URL`, `MONGODB_URI` and `ANTHROPIC_API_KEY`. Render generates `ADMIN_TOKEN`, which you can view in the dashboard.
-5. Open `https://<your-app>.onrender.com/health` and check that every service is green. Then put the URL at the top of this README.
-
-Tables are created and seeded automatically on start. The free Render tier sleeps after 15 minutes idle, so the first request can take about 50 seconds.
+The site is hosted on Render using `render.yaml`. PostgreSQL runs on Neon and MongoDB on MongoDB Atlas, all on free plans. Every push to `main` on GitHub redeploys the site automatically. The free Render plan sleeps after 15 minutes idle, so the first request can take about 50 seconds.
 
 ## Security
 
 - No secrets in the repository: `.env` is git-ignored, and `render.yaml` marks secrets `sync: false`.
 - Helmet sets a strict Content-Security-Policy (no inline scripts) along with other security headers.
-- Rate limits: 15 chat messages per minute and 10 tickets/feedback per 15 minutes per IP (`429`).
+- Rate limits: 15 chat messages per minute and 20 bookings/tickets/feedback per 15 minutes per IP (`429`).
 - All SQL uses parameterised queries. All user text is HTML-escaped before it is rendered.
 - The admin token is compared in constant time.
-- The AI only sees the FAQ and error-code data, never ticket or personal data.
+- The AI only sees FAQ, error-code and public event data, never bookings, tickets or personal data.
 
 ## Proposed improvement
 
-**Email notifications for tickets.** When the assistant or the form creates a ticket, or an admin changes its status, send an email to the visitor (if they left an address) and to the site owner, using a transactional email API such as Resend or SendGrid. This would close the loop, because visitors currently have to come back and check the status themselves. It would use the same pattern as the GitHub call: an API key in an environment variable, a time limit, and a fallback that queues the message for a retry if the email service is down.
+**Email confirmations and a waiting list.** When a booking is made or cancelled, email the student their reference and a calendar invite through a transactional email API such as Resend. When an event is sold out (EVT-409), offer to join a waiting list, and email the next person automatically when someone cancels. It would follow the same pattern as the weather call: an API key in an environment variable, a time limit, and a retry queue if the email service is down.

@@ -28,14 +28,14 @@
   panel.setAttribute('aria-label', 'AI assistant chat');
   panel.innerHTML = `
     <div class="chat-header">
-      <div><strong>AI assistant</strong><small>Answers from the FAQ &amp; error codes</small></div>
+      <div><strong>AI assistant</strong><small>Events, bookings &amp; error codes</small></div>
       <button class="chat-close" type="button" aria-label="Close chat">&times;</button>
     </div>
     <div class="chat-messages" aria-live="polite"></div>
     <div class="chat-suggestions">
-      <button type="button">What is error 404?</button>
-      <button type="button">What skills do you have?</button>
-      <button type="button">How can I contact you?</button>
+      <button type="button">What events are coming up?</button>
+      <button type="button">How do I book a seat?</button>
+      <button type="button">What is error EVT-409?</button>
     </div>
     <form class="chat-form">
       <label class="sr-only" for="chat-input">Your question</label>
@@ -66,8 +66,8 @@
     const meta = document.createElement('div');
     meta.className = 'msg-meta';
     const label = document.createElement('span');
-    label.textContent = reply.engine === 'ai' ? 'AI answer' : 'Answer from FAQ data';
-    if (reply.ticket) label.textContent += ` · ticket ${reply.ticket}`;
+    if (reply.ticket) label.textContent = `Support ticket ${reply.ticket} created`;
+    else label.textContent = reply.engine === 'ai' ? 'AI answer' : 'Answer from site data';
     meta.appendChild(label);
     ['up', 'down'].forEach((rating) => {
       const b = document.createElement('button');
@@ -92,7 +92,7 @@
 
   function greet() {
     if (messagesEl.childElementCount) return;
-    addMessage('bot', "Hi! I can answer questions about this website and explain error codes like 404 or 500. If I don't know, I'll open a support ticket for you.");
+    addMessage('bot', "Hi! Ask me about upcoming events, booking, payments or any error code. If I don't know, I'll open a support ticket for you.");
   }
 
   function open() {

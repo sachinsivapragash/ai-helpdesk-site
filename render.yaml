@@ -17,8 +17,10 @@ services:
         value: claude-opus-5-5
       - key: SITE_OWNER_NAME
         sync: false
-      - key: SITE_OWNER_ROLE
-        value: Software Development Student
+      - key: SITE_NAME
+        value: EventEase
+      - key: CAMPUS_CITY
+        value: Chennai
       - key: SITE_OWNER_EMAIL
         sync: false
       - key: GITHUB_USERNAME

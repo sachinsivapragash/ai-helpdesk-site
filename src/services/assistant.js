@@ -6,6 +6,7 @@ const config = require('../config');
 const sql = require('../db/sql');
 const mongo = require('../db/mongo');
 const tickets = require('./tickets');
+const eventsService = require('./events');
 
 const MAX_MESSAGE_LENGTH = 500;
 const STOPWORDS = new Set(('a an and are as at be by can do does for from how i if in is it me my of on or ' +
@@ -21,7 +22,7 @@ const RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
     answer: { type: 'string', description: 'Reply shown to the visitor. Plain text, at most 120 words.' },
-    source: { type: 'string', enum: ['faq', 'error_code', 'greeting', 'none'] },
+    source: { type: 'string', enum: ['faq', 'error_code', 'event', 'greeting', 'none'] },
     confident: { type: 'boolean', description: 'False when the knowledge base does not contain the answer.' },
   },
   required: ['answer', 'source', 'confident'],
@@ -44,7 +45,8 @@ function tokenize(text) {
 function detectErrorCodes(message, codes) {
   const upper = message.toUpperCase();
   return codes.filter((c) => {
-    const pattern = c.site_specific ? `(SITE-)?${c.code.replace('SITE-', '')}` : c.code;
+    // Site codes such as EVT-409 also match when written as just 409.
+    const pattern = c.site_specific ? `(${c.code.split('-')[0]}-)?${c.code.split('-').pop()}` : c.code;
     return new RegExp(`(^|[^0-9])${pattern}([^0-9]|$)`).test(upper);
   });
 }
@@ -61,24 +63,46 @@ function rankFaqs(message, faqs) {
     .sort((a, b) => b.score - a.score);
 }
 
+function rankEvents(message, events) {
+  const words = new Set(tokenize(message));
+  return events
+    .map((e) => ({ event: e, score: tokenize(`${e.title} ${e.category} ${e.slug.replace(/-/g, ' ')}`).filter((w) => words.has(w)).length }))
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score);
+}
+
+function formatDate(date) {
+  return new Date(date).toLocaleString('en-IN', {
+    timeZone: config.site.timezone, weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
+  });
+}
+
+function describeEvent(e) {
+  const seats = e.seats_left > 0 ? `${e.seats_left} of ${e.capacity} seats left` : 'sold out';
+  return `${e.title} (${e.category}) is on ${formatDate(e.starts_at)} at ${e.venue}. ` +
+    `${e.price > 0 ? `Ticket: Rs ${e.price}, paid at the venue.` : 'Entry is free.'} ${seats[0].toUpperCase()}${seats.slice(1)}. ${e.description}`;
+}
+
 function explainCode(c) {
   return `Error ${c.code} – ${c.title}${c.site_specific ? '' : ` (HTTP ${c.http_status})`}: ${c.meaning} What to do: ${c.user_action}`;
 }
 
-function buildKnowledgeBase(faqs, codes) {
+function buildKnowledgeBase(faqs, codes, events) {
   const faqText = faqs.map((f) => `[FAQ ${f.id}] Q: ${f.question}\nA: ${f.answer}`).join('\n\n');
   const codeText = codes.map((c) =>
     `[ERROR ${c.code}] HTTP ${c.http_status} ${c.title}. Meaning: ${c.meaning} What to do: ${c.user_action}`
   ).join('\n');
-  return `FAQS\n${faqText}\n\nERROR CODES\n${codeText}`;
+  const eventText = events.map((e) => `[EVENT ${e.slug}] ${describeEvent(e)} Book on the Events page.`).join('\n');
+  return `FAQS\n${faqText}\n\nERROR CODES\n${codeText}\n\nUPCOMING EVENTS (times in ${config.site.timezone})\n${eventText || 'No upcoming events.'}`;
 }
 
 function systemPrompt(knowledgeBase) {
-  return `You are the help assistant on the personal website of ${config.owner.name} (${config.owner.role}).
-Answer visitor questions using ONLY the knowledge base below. Do not use outside knowledge about ${config.owner.name}, and do not invent facts, links or contact details.
+  return `You are the help assistant on ${config.site.name}, a campus event booking website for students at ${config.site.campus}.
+Answer visitor questions using ONLY the knowledge base below. Do not invent events, dates, prices, policies, links or contact details.
 
 - If the question matches an FAQ, answer from it in your own words (source "faq").
 - If the visitor mentions or asks about an error code, explain what it means and what to do, using the ERROR CODES section (source "error_code").
+- Questions about specific events (dates, venues, prices, seats left) are answered from UPCOMING EVENTS (source "event"). You cannot make bookings yourself; tell them to use the Events page.
 - Greetings and thanks get a short friendly reply that says what you can help with (source "greeting", confident true).
 - If the knowledge base does not contain the answer, say so briefly and honestly, set confident to false and source "none". The website will then open a support ticket for the visitor, so do not promise anything else.
 
@@ -104,20 +128,28 @@ async function askClaude(message, history, knowledgeBase) {
   return { ...parsed, model: response.model };
 }
 
-function answerWithRules(message, faqs, codes) {
+function answerWithRules(message, faqs, codes, events = []) {
   const matchedCodes = detectErrorCodes(message, codes);
   if (matchedCodes.length) {
     return { answer: matchedCodes.map(explainCode).join('\n\n'), source: 'error_code', confident: true };
   }
-  if (/^\s*(hi|hello|hey|thanks|thank you|good (morning|afternoon|evening))\b/i.test(message)) {
+  if (/^\s*(hi|hello|hey|hii+|yo|thanks|thank you|thx|ok(ay)?|cool|bye|good (morning|afternoon|evening)|how are you|how r u|what'?s up|sup|what can you do|help)\b/i.test(message)) {
     return {
-      answer: 'Hi! I can answer questions about this website and its owner, and explain error codes such as 404 or 500. What would you like to know?',
+      answer: `Hi! I'm the ${config.site.name} assistant. I can tell you about upcoming events, explain how booking works, and explain error codes such as 404 or EVT-409. What would you like to know?`,
       source: 'greeting', confident: true,
     };
   }
   const [best] = rankFaqs(message, faqs);
+  const [bestEvent] = rankEvents(message, events);
+  if (bestEvent && bestEvent.score >= 1 && (!best || bestEvent.score * 3 >= best.score)) {
+    return { answer: describeEvent(bestEvent.event), source: 'event', confident: true };
+  }
+  if (/\b(events?|happening|upcoming|this week)\b/i.test(message) && events.length && (!best || best.score < 3)) {
+    const list = events.slice(0, 5).map((e) => `• ${e.title} – ${formatDate(e.starts_at)}`).join('\n');
+    return { answer: `Upcoming events:\n${list}\nSee the Events page for details and booking.`, source: 'event', confident: true };
+  }
   if (best && best.score >= 3) return { answer: best.faq.answer, source: 'faq', confident: true };
-  return { answer: "I couldn't find an answer to that in my FAQ data.", source: 'none', confident: false };
+  return { answer: "I couldn't find an answer to that in the EventEase help data.", source: 'none', confident: false };
 }
 
 function cleanHistory(history) {
@@ -137,20 +169,21 @@ async function chat({ message, sessionId, page, history, email }) {
   }
   message = message.trim();
   if (message.length > MAX_MESSAGE_LENGTH) {
-    throw new ChatError(413, 'SITE-460', `Message is ${message.length} characters; the limit is ${MAX_MESSAGE_LENGTH}.`);
+    throw new ChatError(413, 'EVT-460', `Message is ${message.length} characters; the limit is ${MAX_MESSAGE_LENGTH}.`);
   }
 
   const started = Date.now();
-  const [faqs, codes] = await Promise.all([
+  const [faqs, codes, events] = await Promise.all([
     sql.query('SELECT id, question, answer, keywords FROM faqs ORDER BY sort_order'),
     sql.query('SELECT * FROM error_codes ORDER BY http_status, code'),
+    eventsService.list(),
   ]);
 
   let result;
   let engine = 'rules';
   if (client) {
     try {
-      result = await askClaude(message, cleanHistory(history), buildKnowledgeBase(faqs, codes));
+      result = await askClaude(message, cleanHistory(history), buildKnowledgeBase(faqs, codes, events));
       engine = result.model || config.claudeModel;
       lastAiStatus = { ok: true, detail: `answered in ${Date.now() - started} ms`, at: new Date() };
     } catch (err) {
@@ -158,7 +191,7 @@ async function chat({ message, sessionId, page, history, email }) {
       console.warn(`[assistant] Claude call failed, using rules: ${err.message}`);
     }
   }
-  if (!result) result = answerWithRules(message, faqs, codes);
+  if (!result) result = answerWithRules(message, faqs, codes, events);
 
   let ticket = null;
   if (!result.confident) {
@@ -169,7 +202,7 @@ async function chat({ message, sessionId, page, history, email }) {
       source: 'assistant',
       sessionId,
     });
-    result.answer = `${result.answer} I've created support ticket ${ticket.reference} so ${config.owner.name} can follow up. You can check its status on the Support page.`;
+    result.answer = `${result.answer} I've created support ticket ${ticket.reference} so the ${config.site.name} team can follow up. You can check its status on the Support page.`;
   }
 
   const messageId = await mongo.insert('chat_logs', {

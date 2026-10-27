@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 {{> head}}
-<title>{{ownerName}} – Home</title>
+<title>{{siteName}} – Campus events, booked in seconds</title>
 </head>
 <body>
 {{> header}}
@@ -10,38 +10,47 @@
   <section class="hero">
     <div class="container hero-inner">
       <div>
-        <p class="eyebrow">{{ownerRole}}</p>
-        <h1>Hi, I'm {{ownerName}}. I build web apps that are fast, friendly and reliable.</h1>
-        <p class="lead">Explore my projects, read about how I work, or ask my AI assistant anything about this site — it can also explain error codes.</p>
+        <p class="eyebrow">Campus events at {{campus}}</p>
+        <h1>Find what's on and book your seat in seconds.</h1>
+        <p class="lead">Hackathons, workshops, talks, cultural nights and sports, all in one place. Book online, get a reference, and ask the AI assistant if you get stuck.</p>
         <div class="hero-actions">
-          <a class="btn" href="/projects">See my projects</a>
+          <a class="btn" href="/events">Browse events</a>
           <button class="btn btn-outline" type="button" data-open-chat>Ask the assistant</button>
         </div>
       </div>
-      <div class="hero-card" aria-hidden="true">
-        <pre><code><span class="c">// what I'm working with</span>
-const stack = {
-  backend:  ['Node.js', 'Express'],
-  data:     ['PostgreSQL', 'MongoDB'],
-  frontend: ['HTML', 'CSS', 'JavaScript'],
-  ai:       'Claude API',
-};</code></pre>
+      <div class="hero-stats card">
+        <div><strong id="stat-events">–</strong><span>upcoming events</span></div>
+        <div><strong id="stat-seats">–</strong><span>seats available</span></div>
+        <div><strong id="stat-free">–</strong><span>free to attend</span></div>
       </div>
     </div>
   </section>
 
   <section class="container section">
-    <h2>What you'll find here</h2>
+    <div class="section-head">
+      <h2>Coming up next</h2>
+      <a href="/events">See all events &rarr;</a>
+    </div>
+    <div id="next-events" class="grid cards-3" aria-live="polite"><p class="muted">Loading events…</p></div>
+  </section>
+
+  <section class="container section">
+    <h2>Weather in {{city}} this week</h2>
+    <p class="muted">From the Open-Meteo weather service, so you know if outdoor events might move indoors.</p>
+    <div id="weather-strip" class="weather-strip" aria-live="polite"><p class="muted">Loading forecast…</p></div>
+  </section>
+
+  <section class="container section">
+    <h2>How it works</h2>
     <div class="grid cards-3">
-      <a class="card card-link" href="/about"><h3>About me</h3><p>My background, skills and what I'm learning next.</p></a>
-      <a class="card card-link" href="/projects"><h3>Projects</h3><p>Live list of my latest GitHub repositories.</p></a>
-      <a class="card card-link" href="/faq"><h3>FAQ</h3><p>Answers to the questions people ask most often.</p></a>
-      <a class="card card-link" href="/error-codes"><h3>Error codes</h3><p>What 404, 500 and other codes mean and what to do.</p></a>
-      <a class="card card-link" href="/support"><h3>Support</h3><p>Open a ticket or check the status of one.</p></a>
-      <a class="card card-link" href="/health"><h3>System health</h3><p>Live status of the database, AI and APIs.</p></a>
+      <div class="card"><h3>1. Pick an event</h3><p>Browse upcoming events with dates, venues, prices and seats left.</p></div>
+      <div class="card"><h3>2. Book up to 4 seats</h3><p>Enter your name and college email to get a BK- booking reference instantly.</p></div>
+      <div class="card"><h3>3. Show up</h3><p>Bring your college ID and reference. Questions? The assistant or Support page can help.</p></div>
     </div>
   </section>
 </main>
 {{> footer}}
+<script src="/js/events.js"></script>
+<script src="/js/home.js"></script>
 </body>
 </html>

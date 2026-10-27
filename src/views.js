@@ -21,8 +21,10 @@ function escape(value) {
 function render(filePath, options, callback) {
   try {
     const vars = {
+      siteName: config.site.name,
+      campus: config.site.campus,
+      city: config.site.city,
       ownerName: config.owner.name,
-      ownerRole: config.owner.role,
       ownerEmail: config.owner.email,
       github: config.owner.github,
       year: new Date().getFullYear(),

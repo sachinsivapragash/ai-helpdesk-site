@@ -28,7 +28,8 @@
     400: () => api('/api/chat', { method: 'POST', body: { message: '' } }),
     401: () => api('/api/admin/tickets'),
     403: () => api('/api/admin/tickets', { headers: { Authorization: 'Bearer wrong-token' } }),
-    'SITE-460': () => api('/api/chat', { method: 'POST', body: { message: 'x'.repeat(600) } }),
+    'EVT-409': () => api('/api/events/resume-clinic/bookings', { method: 'POST', body: { name: 'Demo', email: 'demo@example.com', seats: 4 } }),
+    'EVT-460': () => api('/api/chat', { method: 'POST', body: { message: 'x'.repeat(600) } }),
   };
   document.querySelectorAll('[data-demo]').forEach((b) => {
     b.addEventListener('click', () => {

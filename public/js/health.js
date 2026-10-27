@@ -5,10 +5,10 @@
   const logEl = document.getElementById('request-log');
 
   const labels = {
-    sql: 'SQL database (FAQs, error codes, tickets)',
+    sql: 'SQL database (events, bookings, FAQs, tickets)',
     mongo: 'MongoDB (chat logs, feedback)',
     ai: 'AI assistant (Claude API)',
-    github: 'GitHub API (third-party)',
+    weather: 'Weather API (Open-Meteo, third-party)',
   };
 
   function dot(ok) {

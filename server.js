@@ -34,7 +34,7 @@ app.use('/api', apiRoutes);
 const pages = {
   '/': 'index',
   '/about': 'about',
-  '/projects': 'projects',
+  '/events': 'events',
   '/faq': 'faq',
   '/error-codes': 'error-codes',
   '/support': 'support',
@@ -46,6 +46,9 @@ for (const [route, view] of Object.entries(pages)) {
 }
 
 // Lets examiners see the custom 500 page on the live site.
+// The old portfolio address now points to the events page.
+app.get('/projects', (req, res) => res.redirect(301, '/events'));
+
 app.get('/demo/500', () => {
   throw new Error('Deliberate test error from /demo/500');
 });
