@@ -20,7 +20,7 @@ services:
       - key: SITE_NAME
         value: EventEase
       - key: CAMPUS_CITY
-        value: Chennai
+        value: Coimbatore
       - key: SITE_OWNER_EMAIL
         sync: false
       - key: GITHUB_USERNAME

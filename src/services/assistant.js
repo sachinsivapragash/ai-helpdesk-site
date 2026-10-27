@@ -75,9 +75,10 @@ function rankEvents(message, events) {
 }
 
 function formatDate(date) {
-  return new Date(date).toLocaleString('en-IN', {
-    timeZone: config.site.timezone, weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
-  });
+  const d = new Date(date);
+  const day = `${d.toLocaleDateString('en-IN', { timeZone: config.site.timezone, weekday: 'short' })}, ${d.toLocaleDateString('en-IN', { timeZone: config.site.timezone, day: 'numeric', month: 'short', year: 'numeric' })}`;
+  const time = d.toLocaleTimeString('en-IN', { timeZone: config.site.timezone, hour: 'numeric', minute: '2-digit' });
+  return `${day}, ${time}`;
 }
 
 function describeEvent(e) {

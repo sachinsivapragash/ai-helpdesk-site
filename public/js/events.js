@@ -4,7 +4,10 @@
   const TZ = 'Asia/Kolkata';
 
   function formatDate(iso) {
-    return new Date(iso).toLocaleString('en-IN', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+    const d = new Date(iso);
+    const date = `${d.toLocaleDateString('en-IN', { timeZone: TZ, weekday: 'short' })}, ${d.toLocaleDateString('en-IN', { timeZone: TZ, day: 'numeric', month: 'short', year: 'numeric' })}`;
+    const time = d.toLocaleTimeString('en-IN', { timeZone: TZ, hour: 'numeric', minute: '2-digit' });
+    return `${date}, ${time}`;
   }
   function dayKey(iso) {
     return new Date(iso).toLocaleDateString('en-CA', { timeZone: TZ }); // YYYY-MM-DD

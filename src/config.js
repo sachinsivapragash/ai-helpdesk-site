@@ -8,9 +8,9 @@ module.exports = {
   site: {
     name: env.SITE_NAME || 'EventEase',
     campus: env.CAMPUS_NAME || 'our campus',
-    city: env.CAMPUS_CITY || 'Chennai',
-    lat: Number(env.CAMPUS_LAT) || 13.0827,
-    lon: Number(env.CAMPUS_LON) || 80.2707,
+    city: env.CAMPUS_CITY || 'Coimbatore',
+    lat: Number(env.CAMPUS_LAT) || 11.0168,
+    lon: Number(env.CAMPUS_LON) || 76.9558,
     timezone: env.CAMPUS_TIMEZONE || 'Asia/Kolkata',
   },
   owner: {
