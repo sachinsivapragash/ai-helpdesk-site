@@ -15,13 +15,16 @@
   }
 
   if (forecast && forecast.days.length) {
+    const names = { 'open-meteo': 'Open-Meteo', 'met-norway': 'MET Norway' };
+    const provider = names[forecast.source.replace(/-(cache|saved)$/, '')] || 'weather service';
+    document.getElementById('weather-source').textContent = `Live from ${provider}`;
     strip.innerHTML = forecast.days.slice(0, 7).map((d) => `
       <div class="weather-day">
         <span class="weather-icon" aria-hidden="true">${window.Events.weatherIcon(d.summary)}</span>
         <strong>${new Date(d.date + 'T12:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
         <span class="muted">${new Date(d.date + 'T12:00:00').toLocaleDateString('en-IN', { weekday: 'long' })}</span>
         <span>${escapeHtml(d.summary)}</span>
-        <span>${d.maxTempC}°C${d.rainChance != null ? ` · ${d.rainChance}% rain` : ''}</span>
+        <span>${d.maxTempC}°C${d.rainChance != null ? ` · ${d.rainChance}% rain` : d.rainMm != null ? ` · ${d.rainMm} mm rain` : ''}</span>
       </div>`).join('');
   } else {
     strip.innerHTML = `<p class="notice warn">Weather forecast is unavailable right now${forecast && forecast.reason ? ` (${escapeHtml(forecast.reason)})` : ''}. Events go ahead as planned unless we email you.</p>`;

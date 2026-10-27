@@ -24,7 +24,7 @@ Campus events are usually announced on posters and WhatsApp groups. Students mis
 | Tickets in SQL; chat logs and feedback in MongoDB | `tickets` table with full CRUD on the Organisers page. `chat_logs` and `feedback` (thumbs up/down) collections in MongoDB |
 | Keys in environment variables | All secrets are read from `process.env` (`src/config.js`). `.env` is git-ignored and only `.env.example` is committed |
 | Request logging and health check | Every request is logged with an ID, status and response time. `/api/health` returns JSON and `/health` shows it as a page, with the last 20 requests |
-| Extra third-party API with a time limit and fallback | The Open-Meteo weather API supplies the forecast for each event day and the home-page weather strip. Each call has a 3-second `AbortSignal.timeout` and a 30-minute cache, and falls back to "forecast unavailable" without breaking the page |
+| Extra third-party API with a time limit and fallback | The Open-Meteo weather API supplies the forecast for each event day and the home-page weather strip. Each call has a 3-second `AbortSignal.timeout`. If Open-Meteo is rate-limited or down, the free MET Norway API is tried next. If both fail, the last good forecast (up to 24 hours old) is shown, and with nothing saved the page shows "forecast unavailable" without breaking. Forecasts are cached for 3 hours |
 
 Bookings are stored in SQL as well. Seats are reserved with one atomic `UPDATE ... WHERE booked + seats <= capacity`, so two people can't take the last seat. Organisers can cancel a booking, which releases its seats.
 
@@ -41,7 +41,7 @@ Express server (server.js)
    │     ├── PostgreSQL ── events, bookings, faqs, error_codes, tickets
    │     ├── MongoDB ───── chat_logs, feedback (held in memory and retried if MongoDB is down)
    │     ├── Gemini / Claude ── assistant answers (timeout 15 s, then rule-based fallback)
-   │     └── Open-Meteo ── weather forecast (timeout 3 s, then fallback)
+   │     └── Open-Meteo ─► MET Norway ─► saved forecast ─► fallback (3 s limit per call)
    └── HTML pages (views/) + custom 404 / 500
 ```
 
@@ -73,7 +73,7 @@ Admin routes need `Authorization: Bearer <ADMIN_TOKEN>`. A missing token returns
 npm install
 cp .env.example .env     # optional: set your name, email, API keys
 npm run dev              # http://localhost:3000
-npm test                 # 16 automated end-to-end tests
+npm test                 # 19 automated tests
 ```
 
 Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pglite.dev)) in `./data`. Without `MONGODB_URI`, chat logs are kept in memory. Without `GEMINI_API_KEY` (free from [Google AI Studio](https://aistudio.google.com/apikey)) or `ANTHROPIC_API_KEY`, the assistant runs in rule-based fallback mode. Tables are created and seeded on start. Demo events are scheduled relative to the first start, and events that have passed move forward three weeks, so the site always has upcoming events.

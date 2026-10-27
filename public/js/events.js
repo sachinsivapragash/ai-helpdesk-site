@@ -28,7 +28,7 @@
   function weatherFor(event, forecast) {
     const day = forecast && forecast.days.find((d) => d.date === dayKey(event.starts_at));
     if (!day) return '';
-    const rain = day.rainChance != null ? ` · ${day.rainChance}% rain` : '';
+    const rain = day.rainChance != null ? ` · ${day.rainChance}% rain` : day.rainMm != null ? ` · ${day.rainMm} mm rain` : '';
     return `<p class="event-weather">${weatherIcon(day.summary)} ${escapeHtml(day.summary)}, ${day.maxTempC}°C${rain}</p>`;
   }
 

@@ -64,7 +64,7 @@ const faqs = [
   {
     category: 'Events',
     question: 'How do I know if bad weather will affect an outdoor event?',
-    answer: 'Each event card on the Events page shows the weather forecast for that day (from the Open-Meteo weather service) once the date is within two weeks. If heavy rain is expected, outdoor events move to the indoor backup venue and booked students are emailed.',
+    answer: 'Each event card on the Events page shows the weather forecast for that day (from the Open-Meteo or MET Norway weather services) once the date is within two weeks. If heavy rain is expected, outdoor events move to the indoor backup venue and booked students are emailed.',
     keywords: 'weather rain forecast outdoor postponed moved indoor',
   },
   {

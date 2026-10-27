@@ -8,7 +8,7 @@
     sql: 'SQL database (events, bookings, FAQs, tickets)',
     mongo: 'MongoDB (chat logs, feedback)',
     ai: 'AI assistant',
-    weather: 'Weather API (Open-Meteo, third-party)',
+    weather: 'Weather API (Open-Meteo / MET Norway, third-party)',
   };
 
   function dot(ok) {
