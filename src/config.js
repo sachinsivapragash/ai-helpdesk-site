@@ -31,5 +31,11 @@ module.exports = {
   claudeModel: env.CLAUDE_MODEL || 'claude-opus-5-5',
   aiTimeoutMs: Number(env.AI_TIMEOUT_MS) || 15000,
   weatherTimeoutMs: Number(env.WEATHER_TIMEOUT_MS) || 3000,
+  // Booking emails via Brevo (free tier). MAIL_FROM must be a sender verified in Brevo.
+  mail: {
+    apiKey: env.BREVO_API_KEY || '',
+    from: env.MAIL_FROM || '',
+    timeoutMs: Number(env.MAIL_TIMEOUT_MS) || 5000,
+  },
   adminToken: env.ADMIN_TOKEN || '',
 };

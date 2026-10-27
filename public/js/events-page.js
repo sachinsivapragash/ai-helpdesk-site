@@ -46,7 +46,11 @@
       body.seats = Number(body.seats);
       const b = await api(`/api/events/${encodeURIComponent(slug)}/bookings`, { method: 'POST', body });
       out.className = 'form-result ok';
-      out.textContent = `Booked! Your reference is ${b.reference} for ${b.seats} seat(s). Bring it and your college ID.`;
+      const emailNote = {
+        sent: ` A confirmation email is on its way to ${body.email}.`,
+        failed: ' We could not send the confirmation email right now, so please note your reference.',
+      }[b.email_status] || '';
+      out.textContent = `Booked! Your reference is ${b.reference} for ${b.seats} seat(s). Bring it and your college ID.${emailNote}`;
       form.querySelectorAll('input, select').forEach((i) => { i.disabled = true; });
       btn.hidden = true;
       // Update the seat count on this card without re-rendering (keeps the confirmation visible).

@@ -26,7 +26,7 @@ Campus events are usually announced on posters and WhatsApp groups. Students mis
 | Request logging and health check | Every request is logged with an ID, status and response time. `/api/health` returns JSON and `/health` shows it as a page, with the last 20 requests |
 | Extra third-party API with a time limit and fallback | The Open-Meteo weather API supplies the forecast for each event day and the home-page weather strip. Each call has a 3-second `AbortSignal.timeout`. If Open-Meteo is rate-limited or down, the free MET Norway API is tried next. If both fail, the last good forecast (up to 24 hours old) is shown, and with nothing saved the page shows "forecast unavailable" without breaking. Forecasts are cached for 3 hours |
 
-Bookings are stored in SQL as well. Seats are reserved with one atomic `UPDATE ... WHERE booked + seats <= capacity`, so two people can't take the last seat. Organisers can cancel a booking, which releases its seats.
+Bookings are stored in SQL as well, and each booking or cancellation sends an email through the Brevo API (5-second time limit; if email fails, the booking still goes through and the student is told). Seats are reserved with one atomic `UPDATE ... WHERE booked + seats <= capacity`, so two people can't take the last seat. Organisers can cancel a booking, which releases its seats.
 
 ## Architecture
 
@@ -41,6 +41,7 @@ Express server (server.js)
    │     ├── PostgreSQL ── events, bookings, faqs, error_codes, tickets
    │     ├── MongoDB ───── chat_logs, feedback (held in memory and retried if MongoDB is down)
    │     ├── Gemini / Claude ── assistant answers (timeout 15 s, then rule-based fallback)
+   │     ├── Brevo ─────── booking confirmation / cancellation emails (timeout 5 s, best effort)
    │     └── Open-Meteo ─► MET Norway ─► saved forecast ─► fallback (3 s limit per call)
    └── HTML pages (views/) + custom 404 / 500
 ```
@@ -73,7 +74,7 @@ Admin routes need `Authorization: Bearer <ADMIN_TOKEN>`. A missing token returns
 npm install
 cp .env.example .env     # optional: set your name, email, API keys
 npm run dev              # http://localhost:3000
-npm test                 # 19 automated tests
+npm test                 # 22 automated tests
 ```
 
 Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pglite.dev)) in `./data`. Without `MONGODB_URI`, chat logs are kept in memory. Without `GEMINI_API_KEY` (free from [Google AI Studio](https://aistudio.google.com/apikey)) or `ANTHROPIC_API_KEY`, the assistant runs in rule-based fallback mode. Tables are created and seeded on start. Demo events are scheduled relative to the first start, and events that have passed move forward three weeks, so the site always has upcoming events.
@@ -93,4 +94,4 @@ The site is hosted on Render using `render.yaml`. PostgreSQL runs on Neon and Mo
 
 ## Proposed improvement
 
-**Email confirmations and a waiting list.** When a booking is made or cancelled, email the student their reference and a calendar invite through a transactional email API such as Resend. When an event is sold out (EVT-409), offer to join a waiting list, and email the next person automatically when someone cancels. It would follow the same pattern as the weather call: an API key in an environment variable, a time limit, and a retry queue if the email service is down.
+**Waiting list with automatic seat offers.** When an event is sold out (EVT-409), let students join a waiting list stored in SQL. When someone cancels, offer the freed seats to the first person on the list by email, with a link that holds the seat for 2 hours. If they don't confirm in time, offer it to the next person. This would fill cancelled seats without organisers doing anything, and it reuses the existing booking, email and EVT-409 pieces.

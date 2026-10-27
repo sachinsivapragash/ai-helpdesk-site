@@ -9,6 +9,7 @@
     mongo: 'MongoDB (chat logs, feedback)',
     ai: 'AI assistant',
     weather: 'Weather API (Open-Meteo / MET Norway, third-party)',
+    email: 'Booking emails (Brevo)',
   };
 
   function dot(ok) {
@@ -18,6 +19,7 @@
   function describe(name, c) {
     if (name === 'sql') return c.ok ? `${c.driver}, ${c.latencyMs} ms` : c.detail;
     if (name === 'mongo') return c.ok ? `connected, ${c.latencyMs} ms` : c.detail;
+    if (name === 'email') return c.configured ? `from ${c.from} — ${c.detail}` : c.detail;
     if (name === 'ai') return `${c.configured ? `${c.provider}, model ${c.model}` : 'not configured'} — ${c.detail}`;
     return c.detail;
   }
@@ -38,7 +40,7 @@
       <span class="muted"> · up ${Math.floor(data.uptimeSeconds / 60)} min · ${escapeHtml(data.node)}</span>`;
     checksEl.innerHTML = Object.entries(data.checks).map(([name, c]) => `
       <div class="card">
-        <h3>${dot(name === 'ai' ? (c.configured ? c.ok !== false : null) : c.ok)}${escapeHtml(name === 'ai' && c.configured
+        <h3>${dot(name === 'ai' || name === 'email' ? (c.configured ? c.ok !== false : null) : c.ok)}${escapeHtml(name === 'ai' && c.configured
           ? `AI assistant (${c.provider === 'gemini' ? 'Google Gemini API' : 'Claude API'})` : labels[name] || name)}</h3>
         <p class="muted">${escapeHtml(describe(name, c) || '')}</p>
       </div>`).join('');

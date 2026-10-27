@@ -16,8 +16,8 @@ const faqs = [
   {
     category: 'Booking',
     question: 'How do I book a seat for an event?',
-    answer: 'Open the Events page, pick an event and click "Book seats". Enter your name, college email and the number of seats (1 to 4), then confirm. You get a booking reference starting with BK- straight away.',
-    keywords: 'book booking reserve register seat seats ticket tickets how join',
+    answer: 'Open the Events page, pick an event and click "Book seats". Enter your name, college email and the number of seats (1 to 4), then confirm. You get a booking reference starting with BK- straight away, and a confirmation email with the details is sent to the address you booked with.',
+    keywords: 'book booking reserve register seat seats ticket tickets how join confirmation email',
   },
   {
     category: 'Booking',
@@ -40,7 +40,7 @@ const faqs = [
   {
     category: 'Cancellations',
     question: 'How do I cancel a booking or get a refund?',
-    answer: 'Open a support ticket with your booking reference (BK-...) and we will cancel it and release the seats. Free events need no refund. For paid events you have not paid yet, so nothing is charged.',
+    answer: 'Open a support ticket with your booking reference (BK-...) and the organisers will cancel it and release the seats. You get a cancellation email when it is done. Free events need no refund. For paid events you have not paid yet, so nothing is charged.',
     keywords: 'cancel cancellation refund change booking undo money back',
   },
   {
@@ -52,7 +52,7 @@ const faqs = [
   {
     category: 'On the day',
     question: 'Will I get a participation certificate?',
-    answer: 'Workshops and hackathons give e-certificates to everyone who checks in. They are emailed to the address you booked with within 7 days of the event.',
+    answer: 'Workshops and hackathons give participation certificates to everyone who checks in. Collect yours from the event help desk at the end of the event, using your booking reference.',
     keywords: 'certificate participation e-certificate proof attendance',
   },
   {
@@ -64,7 +64,7 @@ const faqs = [
   {
     category: 'Events',
     question: 'How do I know if bad weather will affect an outdoor event?',
-    answer: 'Each event card on the Events page shows the weather forecast for that day (from the Open-Meteo or MET Norway weather services) once the date is within two weeks. If heavy rain is expected, outdoor events move to the indoor backup venue and booked students are emailed.',
+    answer: 'Each event card on the Events page shows the weather forecast for that day (from the Open-Meteo or MET Norway weather services) once the date is within two weeks. If heavy rain is expected, outdoor events move to the indoor backup venue, and the new venue is shown on the Events page, so check it on the day.',
     keywords: 'weather rain forecast outdoor postponed moved indoor',
   },
   {

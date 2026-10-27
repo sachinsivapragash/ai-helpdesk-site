@@ -27,6 +27,6 @@
         <span>${d.maxTempC}°C${d.rainChance != null ? ` · ${d.rainChance}% rain` : d.rainMm != null ? ` · ${d.rainMm} mm rain` : ''}</span>
       </div>`).join('');
   } else {
-    strip.innerHTML = `<p class="notice warn">Weather forecast is unavailable right now${forecast && forecast.reason ? ` (${escapeHtml(forecast.reason)})` : ''}. Events go ahead as planned unless we email you.</p>`;
+    strip.innerHTML = `<p class="notice warn">Weather forecast is unavailable right now${forecast && forecast.reason ? ` (${escapeHtml(forecast.reason)})` : ''}. Events go ahead as planned; any venue changes appear on the Events page.</p>`;
   }
 })();

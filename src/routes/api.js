@@ -6,6 +6,7 @@ const assistant = require('../services/assistant');
 const tickets = require('../services/tickets');
 const events = require('../services/events');
 const weather = require('../services/weather');
+const mailer = require('../services/email');
 const adminAuth = require('../middleware/adminAuth');
 const { apiError } = require('../middleware/errors');
 const { recentRequests } = require('../middleware/requestLogger');
@@ -36,6 +37,7 @@ router.get('/health', async (req, res) => {
   }
   checks.ai = assistant.status();
   checks.weather = weather.status();
+  checks.email = mailer.status();
 
   const status = !checks.sql.ok ? 'down' : checks.mongo.ok && checks.ai.configured ? 'ok' : 'degraded';
   res.status(status === 'down' ? 503 : 200).json({
@@ -163,7 +165,10 @@ router.post('/events/:slug/bookings', writeLimiter, async (req, res) => {
   if (errors.length) return apiError(res, 400, '400', 'Please fix the booking form.', { details: errors });
   try {
     const booking = await events.book(req.params.slug, { name: str(name, 100), email, seats: count });
-    res.status(201).location(`/api/bookings/${booking.reference}`).json(booking);
+    // 'sent', 'failed' or 'disabled'; a failed email never fails the booking.
+    const emailStatus = await mailer.bookingConfirmed(booking);
+    const { name: _n, email: _e, ...publicBooking } = booking;
+    res.status(201).location(`/api/bookings/${booking.reference}`).json({ ...publicBooking, email_status: emailStatus });
   } catch (err) {
     if (err instanceof events.BookingError) return apiError(res, err.status, err.code, err.message);
     throw err;
@@ -184,7 +189,8 @@ router.get('/admin/bookings', adminAuth, async (req, res) => {
 router.patch('/admin/bookings/:reference/cancel', adminAuth, async (req, res) => {
   const booking = await events.cancelBooking(req.params.reference.toUpperCase());
   if (!booking) return apiError(res, 404, '404', 'No confirmed booking with that reference.');
-  res.json(booking);
+  const emailStatus = await mailer.bookingCancelled(booking);
+  res.json({ reference: booking.reference, status: booking.status, seats: booking.seats, event: booking.event, email_status: emailStatus });
 });
 
 // ---------- Third-party ----------

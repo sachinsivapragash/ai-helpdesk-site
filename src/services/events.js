@@ -44,7 +44,7 @@ async function book(slug, { name, email, seats }) {
        RETURNING reference, seats, status, created_at`,
       [`BK-${crypto.randomBytes(3).toString('hex').toUpperCase()}`, reserved.id, name, email.toLowerCase(), seats]
     );
-    return { ...booking, event: reserved.title, starts_at: reserved.starts_at, venue: reserved.venue };
+    return { ...booking, name, email: email.toLowerCase(), event: reserved.title, starts_at: reserved.starts_at, venue: reserved.venue };
   } catch (err) {
     await sql.query('UPDATE events SET booked = booked - $2 WHERE id = $1', [reserved.id, seats]);
     if (err.code === '23505') throw new BookingError(409, 'EVT-409', 'You have already booked this event with this email.');
@@ -72,12 +72,15 @@ async function listBookings() {
 async function cancelBooking(reference) {
   const [booking] = await sql.query(
     `UPDATE bookings SET status = 'cancelled' WHERE reference = $1 AND status = 'confirmed'
-     RETURNING event_id, seats, reference, status`,
+     RETURNING event_id, seats, reference, status, name, email`,
     [reference]
   );
   if (!booking) return null;
-  await sql.query('UPDATE events SET booked = GREATEST(booked - $2, 0) WHERE id = $1', [booking.event_id, booking.seats]);
-  return booking;
+  const [event] = await sql.query(
+    'UPDATE events SET booked = GREATEST(booked - $2, 0) WHERE id = $1 RETURNING title, starts_at',
+    [booking.event_id, booking.seats]
+  );
+  return { ...booking, event: event.title, starts_at: event.starts_at };
 }
 
 module.exports = { BookingError, list, get, book, getBooking, listBookings, cancelBooking };

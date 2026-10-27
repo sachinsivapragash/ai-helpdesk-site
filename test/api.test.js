@@ -115,6 +115,8 @@ test('booking: success 201, duplicate and sold out -> EVT-409, bad input -> 400'
   assert.equal(ok.status, 201);
   const booking = await ok.json();
   assert.match(booking.reference, /^BK-/);
+  assert.equal(booking.email_status, 'disabled'); // no Brevo key in tests: booking still succeeds
+  assert.equal(booking.email, undefined); // personal data is not echoed back
   const looked = await (await fetch(`${base}/api/bookings/${booking.reference}`)).json();
   assert.equal(looked.seats, 2);
 
