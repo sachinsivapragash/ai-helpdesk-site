@@ -12,7 +12,7 @@ const faqs = [
   {
     category: 'About',
     question: `What is ${site}?`,
-    answer: `${site} is a campus event booking website for students at ${campus}. You can browse upcoming workshops, hackathons, cultural nights and sports events, book seats online, and get help from the AI assistant. It was built by ${owner}.`,
+    answer: `${site} is a campus event booking website for students at ${campus}. You can browse upcoming workshops, hackathons, talks, symposiums, club activities, cultural nights and sports events, book seats online, and get help from the AI assistant. It was built by ${owner}.`,
     keywords: 'what eventease about website purpose who built campus',
   },
   {

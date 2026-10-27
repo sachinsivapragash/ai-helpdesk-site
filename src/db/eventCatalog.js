@@ -68,6 +68,28 @@ const slots = [
         description: 'Get honest feedback on your project portfolio or GitHub profile from a working designer. Very limited seats.' },
     ],
   },
+  {
+    slot: 'tech-symposium', category: 'Symposium', days: 13,
+    variants: [
+      { slug: 'techfest-paper-presentation', title: 'TechFest Paper Presentation', hour: 10, venue: 'Seminar Hall 2', price: 100, capacity: 80,
+        description: 'Present a technical paper on any computing topic to a panel of faculty judges. Certificates for all, prizes for the top three.' },
+      { slug: 'project-expo', title: 'Final-Year Project Expo', hour: 10, venue: 'Main Corridor, Block A', price: 0, capacity: 200,
+        description: 'Walk through stalls of final-year projects, try live demos and vote for the best project of the year.' },
+      { slug: 'code-debug-contest', title: 'Debugging Contest: Find the Bug', hour: 14, venue: 'Lab 1, CS Block', price: 50, capacity: 60,
+        description: 'Fix as many broken programs as you can in 90 minutes, solo or in pairs. C, Java and Python rounds.' },
+    ],
+  },
+  {
+    slot: 'club-meetup', category: 'Club', days: 7,
+    variants: [
+      { slug: 'photography-walk', title: 'Photography Club Campus Walk', hour: 16, venue: 'Meet at Library Steps', price: 0, capacity: 30,
+        description: 'Learn composition and phone photography tips on a guided golden-hour walk around campus. Bring any camera or phone.' },
+      { slug: 'open-mic-night', title: 'Literary Club Open Mic', hour: 17, venue: 'Amphitheatre', price: 0, capacity: 120,
+        description: 'Poetry, stories and stand-up in English or Tamil. Sign up to perform on the spot, or just come and listen.' },
+      { slug: 'robotics-club-demo', title: 'Robotics Club Demo Day', hour: 15, venue: 'Robotics Lab', price: 0, capacity: 50,
+        description: 'See line followers, robotic arms and drones built by the club, and find out how to join this semester.' },
+    ],
+  },
 ];
 
 function variantFor(slot, variant) {

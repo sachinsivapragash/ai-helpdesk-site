@@ -292,6 +292,8 @@ h1, h2, h3 { letter-spacing: -0.02em; }
 .event-card[data-category="Talk"] { border-top-color: #ea580c; }
 .event-card[data-category="Cultural"] { border-top-color: #db2777; }
 .event-card[data-category="Sports"] { border-top-color: #16a34a; }
+.event-card[data-category="Symposium"] { border-top-color: #ca8a04; }
+.event-card[data-category="Club"] { border-top-color: #4f46e5; }
 .event-card h3 { font-size: 1.15rem; margin-top: .35rem; }
 .event-when, .event-venue { margin: 0; }
 .event-venue { color: var(--muted); font-size: .92rem; }
