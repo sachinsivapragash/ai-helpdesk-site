@@ -2,8 +2,8 @@
 
 **Task title:** Personal Portfolio Website with an AI FAQ & Error-Code Assistant
 
-**Live site:** https://YOUR-APP.onrender.com  <!-- replace after deploying -->
-**Health check:** https://YOUR-APP.onrender.com/health
+**Live site:** https://ai-helpdesk-site.onrender.com
+**Health check:** https://ai-helpdesk-site.onrender.com/health
 
 A responsive personal website built with Node.js and Express. Every page has a chat widget whose AI assistant answers questions from the site's FAQ data, explains error codes, and opens a support ticket when it cannot answer.
 
