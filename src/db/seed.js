@@ -70,7 +70,7 @@ const faqs = [
   {
     category: 'Assistant',
     question: 'How does the AI assistant work?',
-    answer: `The assistant answers using only the FAQ, error-code and event data stored in ${site}'s database. It uses the Claude API when available and falls back to keyword matching if the AI is slow or unavailable. If it cannot answer, it creates a support ticket instead of guessing.`,
+    answer: `The assistant answers using only the FAQ, error-code and event data stored in ${site}'s database. It uses an AI model (Google Gemini or Claude) when available and falls back to keyword matching if the AI is slow or unavailable. If it cannot answer, it creates a support ticket instead of guessing.`,
     keywords: 'assistant ai chatbot bot how work claude answer',
   },
   {
