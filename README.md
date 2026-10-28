@@ -2,8 +2,8 @@
 
 **Task title:** EventEase – Campus Event Booking Website with an AI FAQ & Error-Code Assistant
 
-**Live site:** https://ai-helpdesk-site.onrender.com
-**Health check:** https://ai-helpdesk-site.onrender.com/health
+**Live site:** https://eventease.onrender.com
+**Health check:** https://eventease.onrender.com/health
 
 EventEase is a responsive website where students browse campus events (hackathons, workshops, talks, cultural nights and sports) and book seats online. Every page has a chat widget whose AI assistant answers questions from the site's own data, explains error codes, and opens a support ticket when it cannot answer.
 
@@ -11,13 +11,13 @@ EventEase is a responsive website where students browse campus events (hackathon
 
 | Requirement | Where to see it |
 |---|---|
-| 3+ pages, chat widget on every page | [Home](https://ai-helpdesk-site.onrender.com) · [Events](https://ai-helpdesk-site.onrender.com/events) · [About](https://ai-helpdesk-site.onrender.com/about) · [Support](https://ai-helpdesk-site.onrender.com/support) (chat button at the bottom right) |
-| 10+ FAQs from SQL | [FAQ page](https://ai-helpdesk-site.onrender.com/faq) · [API](https://ai-helpdesk-site.onrender.com/api/faqs) |
-| 8+ error codes, error banner | [Error codes page](https://ai-helpdesk-site.onrender.com/error-codes) (use the "Try them out" buttons) · [API](https://ai-helpdesk-site.onrender.com/api/error-codes) |
-| Custom 404 / 500 pages | [Wrong address](https://ai-helpdesk-site.onrender.com/this-page-does-not-exist) · [Test server error](https://ai-helpdesk-site.onrender.com/demo/500) |
-| AI assistant + ticket when unsure | Chat button on any page. Ask something off-topic to get a `TCK-` ticket, then check it on [Support](https://ai-helpdesk-site.onrender.com/support) |
-| Health check + request logging | [Health page](https://ai-helpdesk-site.onrender.com/health) (live status of every service and the last 20 requests) · [JSON](https://ai-helpdesk-site.onrender.com/api/health) |
-| Third-party API with time limit + fallback | Weather on the [home page](https://ai-helpdesk-site.onrender.com) and on event cards · [API](https://ai-helpdesk-site.onrender.com/api/weather) · code in `src/services/weather.js` |
+| 3+ pages, chat widget on every page | [Home](https://eventease.onrender.com) · [Events](https://eventease.onrender.com/events) · [About](https://eventease.onrender.com/about) · [Support](https://eventease.onrender.com/support) (chat button at the bottom right) |
+| 10+ FAQs from SQL | [FAQ page](https://eventease.onrender.com/faq) · [API](https://eventease.onrender.com/api/faqs) |
+| 8+ error codes, error banner | [Error codes page](https://eventease.onrender.com/error-codes) (use the "Try them out" buttons) · [API](https://eventease.onrender.com/api/error-codes) |
+| Custom 404 / 500 pages | [Wrong address](https://eventease.onrender.com/this-page-does-not-exist) · [Test server error](https://eventease.onrender.com/demo/500) |
+| AI assistant + ticket when unsure | Chat button on any page. Ask something off-topic to get a `TCK-` ticket, then check it on [Support](https://eventease.onrender.com/support) |
+| Health check + request logging | [Health page](https://eventease.onrender.com/health) (live status of every service and the last 20 requests) · [JSON](https://eventease.onrender.com/api/health) |
+| Third-party API with time limit + fallback | Weather on the [home page](https://eventease.onrender.com) and on event cards · [API](https://eventease.onrender.com/api/weather) · code in `src/services/weather.js` |
 | Secrets in environment variables | `src/config.js` reads every key from `process.env`; only `.env.example` is committed |
 
 ## The idea
