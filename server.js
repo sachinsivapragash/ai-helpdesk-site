@@ -72,6 +72,19 @@ if (require.main === module) {
   app.listen(config.port, () => console.log(`[server] listening on http://localhost:${config.port}`));
   connectSql();
   mongo.connect();
+  keepAwake();
+}
+
+// Render's free plan sleeps after 15 minutes without incoming requests. On Render the app
+// visits its own public address every 10 minutes (a static file, so the database isn't woken),
+// which keeps it awake. RENDER_EXTERNAL_URL is set by Render; set KEEP_AWAKE=false to turn this off.
+function keepAwake() {
+  const base = process.env.RENDER_EXTERNAL_URL;
+  if (!base || process.env.KEEP_AWAKE === 'false') return;
+  const ping = () => fetch(`${base}/favicon.svg`, { signal: AbortSignal.timeout(15000) })
+    .catch((err) => console.warn('[keep-awake] ping failed:', err.message));
+  setInterval(ping, 10 * 60 * 1000);
+  console.log(`[keep-awake] pinging ${base} every 10 minutes`);
 }
 
 module.exports = { app, start: async () => { await sql.connect(); sqlReady = true; await mongo.connect(); } };

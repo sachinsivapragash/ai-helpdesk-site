@@ -94,7 +94,7 @@ Without `DATABASE_URL`, the app uses an embedded PostgreSQL ([PGlite](https://pg
 
 ## Deployment
 
-The site is hosted on Render using `render.yaml`. PostgreSQL runs on Neon and MongoDB on MongoDB Atlas, all on free plans. Every push to `main` on GitHub redeploys the site automatically. The free Render plan sleeps after 15 minutes idle, so the first request can take about 50 seconds.
+The site is hosted on Render using `render.yaml`. PostgreSQL runs on Neon and MongoDB on MongoDB Atlas, all on free plans. Every push to `main` on GitHub redeploys the site automatically. The free Render plan sleeps after 15 minutes idle. To prevent that, the app visits its own address every 10 minutes while it runs on Render (`keepAwake` in `server.js`, a static file so the database stays asleep), and a scheduled GitHub Action pings it as a backup.
 
 ## Security
 
