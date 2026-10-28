@@ -2,7 +2,7 @@
 # entered in the Render dashboard and never stored in Git.
 services:
   - type: web
-    name: eventease
+    name: ai-helpdesk-site
     runtime: node
     plan: free
     buildCommand: npm ci --omit=dev
