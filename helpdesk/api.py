@@ -100,6 +100,8 @@ def health(request):
         checks['sql'] = {'ok': False, 'detail': str(err)}
     checks['mongo'] = mongo.ping()
     checks['ai'] = assistant.status()
+    # Fetch (or reuse the cached) forecast so the weather status is never just "not called yet".
+    weather.get_forecast()
     checks['weather'] = weather.status()
     checks['email'] = mailer.status()
     state = 'down' if not checks['sql']['ok'] else 'ok' if checks['mongo']['ok'] and checks['ai']['configured'] else 'degraded'
