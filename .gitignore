@@ -7,6 +7,5 @@ __pycache__/
 db.sqlite3
 staticfiles/
 node_modules/
-data/
 *.log
 .DS_Store

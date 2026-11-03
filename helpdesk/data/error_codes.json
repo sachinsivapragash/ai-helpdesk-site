@@ -1,0 +1,67 @@
+[
+  {
+    "code": "400",
+    "http_status": 400,
+    "title": "Bad Request",
+    "meaning": "Something in your request was missing or invalid, for example an empty chat message, an invalid email address, or a seat count outside 1 to 4.",
+    "user_action": "Check what you entered, fill in all required fields and try again."
+  },
+  {
+    "code": "401",
+    "http_status": 401,
+    "title": "Unauthorized",
+    "meaning": "This action needs you to sign in or provide an access token, and none was given. On EventEase it appears when the organiser dashboard is opened without the admin token.",
+    "user_action": "Provide a valid access token. Students do not need this area."
+  },
+  {
+    "code": "403",
+    "http_status": 403,
+    "title": "Forbidden",
+    "meaning": "You are identified but not allowed to do this. On EventEase it appears when a wrong admin token is used on the organiser dashboard.",
+    "user_action": "Use the correct token, or contact the organiser if you think you should have access."
+  },
+  {
+    "code": "404",
+    "http_status": 404,
+    "title": "Not Found",
+    "meaning": "The page, event or booking at this address does not exist. The link may be mistyped, or the event may have been removed.",
+    "user_action": "Check the address, go back to the Events page, or use the menu."
+  },
+  {
+    "code": "429",
+    "http_status": 429,
+    "title": "Too Many Requests",
+    "meaning": "Too many requests were sent in a short time, so the rate limit was reached. This protects the booking system and the AI assistant from overload.",
+    "user_action": "Wait about a minute, then try again."
+  },
+  {
+    "code": "500",
+    "http_status": 500,
+    "title": "Internal Server Error",
+    "meaning": "Something went wrong on the server while handling your request. It is a problem with the site, not with anything you did.",
+    "user_action": "Refresh or try again later. If it keeps happening, open a support ticket."
+  },
+  {
+    "code": "503",
+    "http_status": 503,
+    "title": "Service Unavailable",
+    "meaning": "The server or one of its services (such as the database) is temporarily unavailable, often because of maintenance or overload.",
+    "user_action": "Try again in a few minutes. The Health page shows which service is down."
+  },
+  {
+    "code": "EVT-409",
+    "http_status": 409,
+    "title": "Event Sold Out (site-specific)",
+    "meaning": "{site}'s own code: there are not enough seats left for this booking, or you have already booked this event with the same email.",
+    "user_action": "Try fewer seats, pick another event, or open a support ticket to join the waiting list.",
+    "site_specific": true
+  },
+  {
+    "code": "EVT-460",
+    "http_status": 413,
+    "title": "Chat Message Too Long (site-specific)",
+    "meaning": "{site}'s own code: your message to the AI assistant was longer than the 500-character limit, so it was not sent.",
+    "user_action": "Shorten your question to under 500 characters, or use the Support form for long requests.",
+    "site_specific": true
+  }
+]
