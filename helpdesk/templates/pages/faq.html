@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+{% include "partials/head.html" %}
+<title>FAQ – {{siteName}}</title>
+</head>
+<body>
+{% include "partials/header.html" %}
+<main id="main">
+  <section class="page-head">
+    <div class="container page-head-inner">
+      <span class="page-icon" aria-hidden="true">❓</span>
+      <div>
+        <p class="eyebrow">Help centre</p>
+        <h1>Frequently asked questions</h1>
+        <p class="lead">These answers come straight from the site's SQL database — the same data the AI assistant uses.</p>
+      </div>
+    </div>
+  </section>
+  <div class="container section narrow page-body">
+  <label class="search">
+    <span class="sr-only">Search FAQs</span>
+    <input id="faq-search" type="search" placeholder="Search questions…" autocomplete="off">
+  </label>
+  <div id="faq-list" class="faq-list" aria-live="polite"><p class="muted">Loading FAQs…</p></div>
+  <div class="card cta">
+    <p><strong>Didn't find your answer?</strong> Ask the assistant — if it can't help, it will open a support ticket for you.</p>
+    <button class="btn" type="button" data-open-chat>Ask the assistant</button>
+  </div>
+  </div>
+</main>
+{% include "partials/footer.html" %}
+<script src="/static/js/faq.js?v={{assetVersion}}"></script>
+</body>
+</html>

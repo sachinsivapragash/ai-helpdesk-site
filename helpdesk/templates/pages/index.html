@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+{% include "partials/head.html" %}
+<title>{{siteName}} – Campus events, booked in seconds</title>
+</head>
+<body>
+{% include "partials/header.html" %}
+<main id="main">
+  <section class="hero">
+    <div class="container hero-inner">
+      <div>
+        <p class="eyebrow">Campus events in {{city}}</p>
+        <h1>Find what's on and book your seat in seconds.</h1>
+        <p class="lead">Hackathons, workshops, talks, symposiums, clubs, cultural nights and sports, all in one place. Book online, get a reference, and ask the AI assistant if you get stuck.</p>
+        <div class="hero-actions">
+          <a class="btn" href="/events">Browse events</a>
+          <button class="btn btn-outline" type="button" data-open-chat>Ask the assistant</button>
+        </div>
+      </div>
+      <div class="hero-stats card">
+        <div><strong id="stat-events">–</strong><span>upcoming events</span></div>
+        <div><strong id="stat-seats">–</strong><span>seats available</span></div>
+        <div><strong id="stat-free">–</strong><span>free to attend</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section">
+    <div class="section-head">
+      <h2>Coming up next</h2>
+      <a href="/events">See all events &rarr;</a>
+    </div>
+    <div id="next-events" class="grid cards-3" aria-live="polite"><p class="muted">Loading events…</p></div>
+  </section>
+
+  <section class="band">
+    <div class="container section">
+      <div class="section-head">
+        <h2>Weather in {{city}} this week</h2>
+        <span id="weather-source" class="muted small">Live forecast</span>
+      </div>
+      <p class="muted">So you know if outdoor events might move indoors. Fetched from a third-party weather API with a 3-second time limit and a backup service.</p>
+      <div id="weather-strip" class="weather-strip" aria-live="polite"><p class="muted">Loading forecast…</p></div>
+    </div>
+  </section>
+
+  <section class="container section">
+    <h2>How it works</h2>
+    <div class="grid cards-3 steps">
+      <div class="card step"><span class="step-num">1</span><h3>Pick an event</h3><p>Browse upcoming events with dates, venues, prices and seats left.</p></div>
+      <div class="card step"><span class="step-num">2</span><h3>Book up to 4 seats</h3><p>Enter your name and college email to get a BK- booking reference instantly.</p></div>
+      <div class="card step"><span class="step-num">3</span><h3>Show up</h3><p>Bring your college ID and reference. Questions? The assistant or Support page can help.</p></div>
+    </div>
+  </section>
+
+  <section class="container section">
+    <div class="card cta-band">
+      <div>
+        <h2>Got a question?</h2>
+        <p>Ask the AI assistant about events, bookings or any error code. If it can't help, it opens a ticket for you.</p>
+      </div>
+      <button class="btn btn-light-solid" type="button" data-open-chat>Ask the assistant</button>
+    </div>
+  </section>
+</main>
+{% include "partials/footer.html" %}
+<script src="/static/js/events.js?v={{assetVersion}}"></script>
+<script src="/static/js/home.js?v={{assetVersion}}"></script>
+</body>
+</html>

@@ -1,26 +1,23 @@
-# Render Blueprint: New > Blueprint > pick this repo. Secrets marked sync:false are
-# entered in the Render dashboard and never stored in Git.
+# Render Blueprint. Secrets marked sync:false are entered in the Render dashboard and never stored in Git.
 services:
   - type: web
     name: ai-helpdesk-site
-    runtime: node
+    runtime: python
     plan: free
-    buildCommand: npm ci --omit=dev
-    startCommand: npm start
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate --noinput && python manage.py seed && gunicorn eventease.wsgi --workers 2 --timeout 60
     healthCheckPath: /api/health
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NODE_VERSION
-        value: "22"
-      - key: CLAUDE_MODEL
-        value: claude-opus-5-5
-      - key: SITE_OWNER_NAME
-        sync: false
+      - key: PYTHON_VERSION
+        value: "3.13.5"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
       - key: SITE_NAME
         value: EventEase
       - key: CAMPUS_CITY
         value: Coimbatore
+      - key: SITE_OWNER_NAME
+        sync: false
       - key: SITE_OWNER_EMAIL
         sync: false
       - key: GITHUB_USERNAME
@@ -34,8 +31,6 @@ services:
       - key: BREVO_API_KEY
         sync: false
       - key: MAIL_FROM
-        sync: false
-      - key: ANTHROPIC_API_KEY
         sync: false
       - key: ADMIN_TOKEN
         generateValue: true
