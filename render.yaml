@@ -1,7 +1,7 @@
 # Render Blueprint. Secrets marked sync:false are entered in the Render dashboard and never stored in Git.
 services:
   - type: web
-    name: ai-helpdesk-site-2
+    name: ai-helpdesk-site
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
