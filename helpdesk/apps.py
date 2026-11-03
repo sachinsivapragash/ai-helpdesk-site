@@ -1,6 +1,3 @@
-import os
-import sys
-
 from django.apps import AppConfig
 
 
@@ -9,9 +6,6 @@ class HelpdeskConfig(AppConfig):
     name = 'helpdesk'
 
     def ready(self):
-        # Start background connections only when serving requests, not for migrate/test/etc.
-        serving = 'gunicorn' in os.path.basename(sys.argv[0]) or 'runserver' in sys.argv
-        if serving:
-            from .services import keepawake, mongo
-            mongo.start()
-            keepawake.start()
+        # Background work (MongoDB, keep-awake) starts per process on its first request; see
+        # helpdesk/services/lifecycle.py. Nothing starts here, so migrate/test/seed stay quiet.
+        return

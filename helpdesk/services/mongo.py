@@ -2,6 +2,7 @@
 fails, or MongoDB goes down later, documents are kept in memory so the chat keeps working;
 /health reports it, the app retries every 30 seconds, and held documents are saved on reconnect."""
 import logging
+import os
 import threading
 import time
 from collections import deque
@@ -20,7 +21,8 @@ _db = None
 _client = None
 _last_error = None
 _memory = {'chat_logs': deque(maxlen=MAX_IN_MEMORY), 'feedback': deque(maxlen=MAX_IN_MEMORY)}
-_started = False
+_started_pid = None
+_first_attempt_done = threading.Event()
 
 
 def _connect_once():
@@ -43,19 +45,26 @@ def _connect_once():
 
 def start():
     """Connect in the background so a slow or missing MongoDB never blocks start-up."""
-    global _started, _last_error
+    global _started_pid, _last_error, _db, _client
     with _lock:
-        if _started:
+        if _started_pid == os.getpid():
             return
-        _started = True
+        # A copied (forked) process must not reuse its parent's connection: start afresh.
+        _started_pid, _db, _client = os.getpid(), None, None
+        _last_error = 'connecting to MongoDB...'
+        _first_attempt_done.clear()
     if not settings.MONGODB_URI:
         _last_error = 'MONGODB_URI not set - using in-memory store'
         log.warning('[mongo] %s', _last_error)
+        _first_attempt_done.set()
         return
 
     def loop():
-        while not _connect_once():
+        ok = _connect_once()
+        _first_attempt_done.set()
+        while not ok:
             time.sleep(RETRY_SECONDS)
+            ok = _connect_once()
 
     threading.Thread(target=loop, name='mongo-connect', daemon=True).start()
 
@@ -107,6 +116,8 @@ def feedback_summary():
 
 
 def ping():
+    # Right after start-up, give the first connection attempt a moment to finish.
+    _first_attempt_done.wait(timeout=3)
     if _db is None:
         return {'ok': False, 'mode': 'memory', 'detail': _last_error}
     started = time.monotonic()

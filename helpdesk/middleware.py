@@ -7,6 +7,8 @@ import uuid
 from collections import deque
 from datetime import datetime, timezone
 
+from .services.lifecycle import ensure_started
+
 log = logging.getLogger('requests')
 _recent = deque(maxlen=50)
 
@@ -24,6 +26,7 @@ class RequestLogMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        ensure_started()
         request.id = uuid.uuid4().hex[:8]
         started = time.monotonic()
         response = self.get_response(request)

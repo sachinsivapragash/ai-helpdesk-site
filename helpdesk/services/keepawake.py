@@ -10,15 +10,15 @@ import requests
 
 log = logging.getLogger(__name__)
 INTERVAL_SECONDS = 10 * 60
-_started = False
+_started_pid = None
 
 
 def start():
-    global _started
+    global _started_pid
     base = os.environ.get('RENDER_EXTERNAL_URL')
-    if _started or not base or os.environ.get('KEEP_AWAKE', '').lower() == 'false':
+    if _started_pid == os.getpid() or not base or os.environ.get('KEEP_AWAKE', '').lower() == 'false':
         return
-    _started = True
+    _started_pid = os.getpid()
 
     def loop():
         while True:
