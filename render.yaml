@@ -6,7 +6,7 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: python manage.py migrate --noinput && python manage.py seed && gunicorn eventease.wsgi --workers 2 --timeout 60
-    healthCheckPath: /api/health
+    healthCheckPath: /static/favicon.svg
     envVars:
       - key: PYTHON_VERSION
         value: "3.13.5"
